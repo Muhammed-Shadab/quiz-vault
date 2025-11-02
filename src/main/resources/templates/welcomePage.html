@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVault - The Smarter Way to Learn and Teach</title>
+    <link rel="stylesheet" th:href="@{/css/welcomePage.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="logo">QuizVault</div>
+        <a href="#" class="header-btn" th:href="@{/choice}">Login</a>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Welcome to QuizVault – The Smarter Way to Learn and Teach!</h1>
+        <p class="tagline">Upload. Quiz. Track. No hassle, no cheating, all progress.</p>
+        <div class="cta-buttons">
+            <a class="btn-primary" th:href="@{/choice}">Create Your Account</a>
+            <a class="btn-secondary" th:href="@{/choice}">Login</a>
+        </div>
+    </section>
+
+    <!-- Content Card -->
+    <div class="content-card">
+        <p class="intro-text">
+            Whether you're a teacher looking to save hours of prep time, or a student eager to learn smarter, QuizVault is here to make learning effortless.
+        </p>
+
+        <!-- Features Section -->
+        <div class="features">
+            <!-- For Teachers -->
+            <div class="feature-box">
+                <h3>For Teachers</h3>
+                <ul>
+                    <li>Upload your PDFs or PPTs and generate quizzes automatically.</li>
+                    <li>Add or edit questions anytime you like.</li>
+                    <li>Track student performance with interactive dashboards.</li>
+                </ul>
+            </div>
+
+            <!-- For Students -->
+            <div class="feature-box">
+                <h3>For Students</h3>
+                <ul>
+                    <li>Take quizzes safely with zero cheating.</li>
+                    <li>Monitor your progress with visual performance graphs.</li>
+                    <li>Focus on learning, not distractions.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="value-prop">
+            It's fast. It's smart. It's the future of classroom learning.
+        </div>
+    </div>
+
+    <!-- Final CTA -->
+    <div class="final-cta">
+        <h2>Ready to Get Started?</h2>
+        <p>Smart quizzes, smarter learning. Your journey starts here!</p>
+        <div class="cta-buttons">
+            <a class="btn-primary" th:href="@{/choice}">Create Your Account</a>
+            <a class="btn-secondary" style="color: black" th:href="@{/choice}">Login</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 QuizVault. All rights reserved.</p>
+        <p>Privacy Policy | Terms of Service | Contact Us</p>
+    </footer>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.feature-box');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 200);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVault - Teacher Login</title>
+    <link rel="stylesheet" th:href="@{/css/teacherPortal.css}">
+</head>
+<body>
+<div class="container">
+    <a th:href="@{choice}" class="back-btn">← Back</a>
+
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Teacher Portal</h1>
+            <p>Manage classes and students</p>
+        </div>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="switchTab('login')">Login</button>
+            <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="form-content active">
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Teacher ID / Email</label>
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="Enter ID or email" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" placeholder="Enter password" required>
+                        <span class="password-toggle" onclick="togglePassword('login-password', this)">
+                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot?</a>
+                </div>
+
+                <button type="submit" class="submit-btn">Login</button>
+
+                <div class="divider"><span>OR</span></div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn">📧 Google</button>
+                    <button type="button" class="social-btn">📱 Microsoft</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-form" class="form-content">
+            <form onsubmit="handleSignup(event)">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="Enter your name" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" placeholder="Enter email" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Teacher ID</label>
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="Enter teacher ID" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Subject</label>
+                    <div class="input-wrapper">
+                        <select required>
+                            <option value="">Select subject</option>
+                            <option value="math">Mathematics</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="computer">Computer Science</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="signup-password" placeholder="Create password" required>
+                        <span class="password-toggle" onclick="togglePassword('signup-password', this)">
+                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Create Account</button>
+
+                <div class="divider"><span>OR</span></div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn">📧 Google</button>
+                    <button type="button" class="social-btn">📱 Microsoft</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Update form content
+        document.querySelectorAll('.form-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tab + '-form').classList.add('active');
+    }
+
+    function togglePassword(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+
+        // Toggle eye icon
+        const svg = iconElement.querySelector('svg');
+        if (isPassword) {
+            // Show eye with slash (password visible)
+            svg.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <line x1="3" y1="3" x2="21" y2="21"></line>
+            `;
+        } else {
+            // Show normal eye (password hidden)
+            svg.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            `;
+        }
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        alert('Teacher login successful!');
+        // window.location.href = 'teacher-dashboard.html';
+    }
+
+    function handleSignup(event) {
+        event.preventDefault();
+        alert('Teacher account created successfully!');
+        // window.location.href = 'teacher-dashboard.html';
+    }
+</script>
+</body>
+</html>
