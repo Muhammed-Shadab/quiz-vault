@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVault - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .profile-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Dropdown Menu */
+        .menu-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 2rem;
+            margin-top: 0.5rem;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.5rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            gap: 0.8rem;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .menu-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .welcome-section {
+            margin-bottom: 3rem;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: #9ca3af;
+        }
+
+        /* Create Quiz Section */
+        .create-quiz-section {
+            margin-bottom: 3rem;
+        }
+
+        .create-quiz-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .create-quiz-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 250px;
+        }
+
+        .create-quiz-card:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(40, 40, 40, 0.6);
+            transform: translateY(-5px);
+        }
+
+        .create-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .create-quiz-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .create-quiz-card p {
+            color: #9ca3af;
+            font-size: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(40, 40, 40, 0.6);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .view-all-btn {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            color: #ffffff;
+        }
+
+        /* Rooms Grid */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .room-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(40, 40, 40, 0.6);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .room-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .room-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .room-info {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .open-room-btn {
+            display: block;
+            width: 100%;
+            padding: 0.7rem;
+            background: #ffffff;
+            color: #000000;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .open-room-btn:hover {
+            transform: scale(1.02);
+            background: #f0f0f0;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #9ca3af;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* Recent Quizzes */
+        .recent-quizzes {
+            margin-top: 3rem;
+        }
+
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quiz-item {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 2rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-item:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(40, 40, 40, 0.6);
+        }
+
+        .quiz-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .quiz-date {
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+        .quiz-students {
+            color: #d1d5db;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .create-quiz-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .create-quiz-card {
+                padding: 2rem;
+                min-height: 200px;
+            }
+
+            .quiz-item {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <a href="#" class="logo">QuizVault</a>
+    <div class="nav-right">
+        <button class="menu-btn" onclick="toggleMenu()">
+            <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+            Menu
+        </button>
+        <div class="profile-photo" onclick="redirectToProfile()">PS</div>
+
+        <!-- Dropdown Menu -->
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Home
+            </a>
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+                </svg>
+                My Rooms
+            </a>
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                </svg>
+                Create New Quiz
+            </a>
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+                Analytics
+            </a>
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                </svg>
+                Settings
+            </a>
+            <a href="#" class="menu-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">Welcome back, <span th:text="${teacherName}"></span> 👋 </h1>
+        <p class="welcome-subtitle">Create, manage, and track your quizzes all in one place</p>
+    </div>
+
+    <!-- Create Quiz Section -->
+    <div class="create-quiz-section">
+        <div class="create-quiz-grid">
+            <a class="create-quiz-card" th:href="@{/createQuiz}" style="color: white; text-decoration: none">
+                <div class="create-icon">➕</div>
+                <h2>Create a New Quiz</h2>
+                <p>Upload PPT or PDF to get started</p>
+            </a>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-content">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Total Quizzes</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-value">73</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <div class="stat-value">89%</div>
+                        <div class="stat-label">Avg. Completion</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-content">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Active Rooms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Rooms Section -->
+    <section>
+        <div class="section-header">
+            <h3 class="section-title">My Rooms</h3>
+            <a href="#" class="view-all-btn">View All →</a>
+        </div>
+
+        <!-- Dynamic Rooms Grid (use Thymeleaf here) -->
+        <div class="rooms-grid" id="roomsContainer">
+            <!-- Example with Thymeleaf syntax (commented for demo) -->
+            <!-- <div th:each="room : ${rooms}" class="room-card">
+                <div class="room-header">
+                    <div class="room-icon" th:text="${room.icon}">📚</div>
+                </div>
+                <h4 th:text="${room.name}">Room Name</h4>
+                <p class="room-info" th:text="${room.studentCount} + ' students · ' + ${room.quizCount} + ' quizzes'">0 students · 0 quizzes</p>
+                <button class="open-room-btn" th:onclick="'openRoom(' + ${room.id} + ')'">Open Room</button>
+            </div> -->
+
+            <!-- Static example rooms (remove when connecting to backend) -->
+            <div class="room-card">
+                <div class="room-header">
+                    <div class="room-icon">⚛️</div>
+                </div>
+                <h4>Physics</h4>
+                <p class="room-info">25 students · 8 quizzes</p>
+                <button class="open-room-btn">Open Room</button>
+            </div>
+
+            <div class="room-card">
+                <div class="room-header">
+                    <div class="room-icon">🧪</div>
+                </div>
+                <h4>Chemistry</h4>
+                <p class="room-info">18 students · 5 quizzes</p>
+                <button class="open-room-btn">Open Room</button>
+            </div>
+
+            <div class="room-card">
+                <div class="room-header">
+                    <div class="room-icon">📐</div>
+                </div>
+                <h4>Mathematics</h4>
+                <p class="room-info">30 students · 12 quizzes</p>
+                <button class="open-room-btn">Open Room</button>
+            </div>
+        </div>
+
+        <!-- Empty State (show when no rooms exist) -->
+        <!-- <div class="empty-state" style="display: none;" id="emptyRooms">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+            </svg>
+            <h3>No rooms yet</h3>
+            <p>Create your first quiz to get started!</p>
+        </div> -->
+    </section>
+
+    <!-- Recent Quizzes Section -->
+    <section class="recent-quizzes">
+        <div class="section-header">
+            <h3 class="section-title">Recent Quizzes</h3>
+            <a href="#" class="view-all-btn">View All →</a>
+        </div>
+
+        <!-- Dynamic Quiz List (use Thymeleaf here) -->
+        <div class="quiz-list" id="quizList">
+            <!-- Example with Thymeleaf syntax (commented for demo) -->
+            <!-- <div th:each="quiz : ${recentQuizzes}" class="quiz-item">
+                <div class="quiz-name" th:text="${quiz.name}">Quiz Name</div>
+                <div class="quiz-date" th:text="${quiz.date}">Date</div>
+                <div class="quiz-students" th:text="${quiz.studentCount} + ' students'">0 students</div>
+            </div> -->
+
+            <!-- Static example quizzes (remove when connecting to backend) -->
+            <div class="quiz-item">
+                <div class="quiz-name">Quantum Mechanics</div>
+                <div class="quiz-date">Jul 20, 2024</div>
+                <div class="quiz-students">25 students</div>
+            </div>
+
+            <div class="quiz-item">
+                <div class="quiz-name">Organic Chemistry</div>
+                <div class="quiz-date">Aug 5, 2024</div>
+                <div class="quiz-students">18 students</div>
+            </div>
+
+            <div class="quiz-item">
+                <div class="quiz-name">Algebra Basics</div>
+                <div class="quiz-date">Aug 12, 2024</div>
+                <div class="quiz-students">30 students</div>
+            </div>
+
+            <div class="quiz-item">
+                <div class="quiz-name">Thermodynamics</div>
+                <div class="quiz-date">Sep 1, 2024</div>
+                <div class="quiz-students">22 students</div>
+            </div>
+        </div>
+
+        <!-- Empty State for quizzes -->
+        <!-- <div class="empty-state" style="display: none;" id="emptyQuizzes">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+            </svg>
+            <h3>No quizzes yet</h3>
+            <p>Create your first quiz to see it here!</p>
+        </div> -->
+    </section>
+</div>
+
+<script>
+    // Toggle dropdown menu
+    function toggleMenu() {
+        const dropdown = document.getElementById('menuDropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('menuDropdown');
+        const menuBtn = document.querySelector('.menu-btn');
+
+        if (!dropdown.contains(event.target) && !menuBtn.contains(event.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+
+    // Redirect to profile page
+    function redirectToProfile() {
+        // Replace with actual profile page URL
+        window.location.href = 'profile.html';
+    }
+
+    // Create quiz function
+    function createQuiz() {
+        // Replace with actual create quiz logic
+        alert('Create Quiz functionality - Connect to backend');
+    }
+
+    // Example: Dynamic room rendering (replace with actual backend data)
+    // function loadRooms(rooms) {
+    //     const container = document.getElementById('roomsContainer');
+    //     const emptyState = document.getElementById('emptyRooms');
+    //
+    //     if (rooms.length === 0) {
+    //         container.style.display = 'none';
+    //         emptyState.style.display = 'block';
+    //         return;
+    //     }
+    //
+    //     container.innerHTML = rooms.map(room => `

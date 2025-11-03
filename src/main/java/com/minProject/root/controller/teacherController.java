@@ -1,36 +1,35 @@
 package com.minProject.root.controller;
 
 
-import com.minProject.root.entity.Student;
 import com.minProject.root.entity.Teacher;
-import com.minProject.root.service.StudentService;
+import com.minProject.root.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@RequestMapping("/student")
+
+@RequestMapping("teacher")
 @Controller
-public class StudentController {
+public class teacherController {
+
     @Autowired
-    private StudentService studentSrc;
+    private TeacherService teacherSrc;
 
     @PostMapping("/add")
-    public String addStudent(@ModelAttribute Student stn, Model model){
-        model.addAttribute("teacherName", stn.getName());
-        studentSrc.addStudent(stn);
+    public String addTeacher(@ModelAttribute Teacher t){
+        teacherSrc.addTeacher(t);
         return "redirect:/welcome";
     }
 
-    @PostMapping("/isStudentExists")
-    public String isStudentVerified(@ModelAttribute Student st, RedirectAttributes redirectAttrs){
-        if(studentSrc.isStudentVerified(st)) return "redirect:/studentHomePage";
+    @PostMapping("/isTeacherExists")
+    public String isTeacherVerified(@ModelAttribute Teacher t,RedirectAttributes redirectAttrs){
+        if(teacherSrc.isTeacherVerified(t)) return "redirect:/teacherHomePage";
         else{
             redirectAttrs.addFlashAttribute("error", "Invalid email or password");
-            return "redirect:/studentPortal";
+            return "redirect:/teacherPortal";
         }
 
     }

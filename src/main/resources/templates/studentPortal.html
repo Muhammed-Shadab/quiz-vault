@@ -23,7 +23,7 @@
 
         <!-- Login Form -->
         <div id="login-form" class="form-content active">
-            <form onsubmit="handleLogin(event)">
+            <form th:action="@{/student/isStudentExists}" th:object="${Student}" method="post">
                 <div class="input-group">
                     <label>Student ID / Email</label>
                     <div class="input-wrapper">
@@ -53,6 +53,7 @@
                 </div>
 
                 <button type="submit" class="submit-btn">Login</button>
+                <p th:if="${error}" th:text="${error}" style="color:red; font-size: 12px"></p>
 
                 <div class="divider"><span>OR</span></div>
 

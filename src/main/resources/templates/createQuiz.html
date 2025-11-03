@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVault - Create Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .profile-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #9ca3af;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(20, 20, 20, 0.8);
+        }
+
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(20, 20, 20, 0.3);
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(20, 20, 20, 0.5);
+        }
+
+        .upload-area.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.2rem;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon {
+            font-size: 1.5rem;
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .file-size {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .remove-file-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .remove-file-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Number Input Group */
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Helper Text */
+        .helper-text {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <a href="#" class="logo">QuizVault</a>
+    <div class="nav-right">
+        <div class="profile-photo" onclick="redirectToProfile()">PS</div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Create New Quiz</h1>
+        <p class="page-subtitle">Upload your content and customize your quiz settings</p>
+    </div>
+
+    <!-- Quiz Form -->
+    <form id="quizForm">
+        <!-- Basic Information -->
+        <div class="form-card">
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Quiz Title *</label>
+                    <input
+                            type="text"
+                            class="form-input"
+                            placeholder="Enter quiz title"
+                            required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea
+                            class="form-input"
+                            placeholder="Add a brief description of your quiz (optional)"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Content -->
+        <div class="form-card">
+            <div class="form-section">
+                <h2 class="section-title">Upload Content</h2>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-subtext">PPT, PPTX, or PDF (Max 50MB)</div>
+                </div>
+                <input
+                        type="file"
+                        id="fileInput"
+                        class="file-input"
+                        accept=".ppt,.pptx,.pdf"
+                        onchange="handleFileSelect(event)"
+                >
+
+                <div id="uploadedFileDisplay" style="display: none;">
+                    <!-- File display will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Settings -->
+        <div class="form-card">
+            <div class="form-section">
+                <h2 class="section-title">Quiz Settings</h2>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label class="form-label">Number of Questions *</label>
+                        <input
+                                type="number"
+                                class="form-input"
+                                placeholder="10"
+                                min="1"
+                                max="100"
+                                value="10"
+                                required
+                        >
+                        <p class="helper-text">Questions will be auto-generated from your content</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Quiz Duration (minutes) *</label>
+                        <input
+                                type="number"
+                                class="form-input"
+                                placeholder="30"
+                                min="1"
+                                max="180"
+                                value="30"
+                                required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Difficulty Level *</label>
+                    <select class="form-input" required>
+                        <option value="">Select difficulty</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Generate Quiz</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let uploadedFile = null;
+
+    // Handle file selection
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            uploadedFile = file;
+            displayUploadedFile(file);
+        }
+    }
+
+    // Display uploaded file
+    function displayUploadedFile(file) {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileDisplay = document.getElementById('uploadedFileDisplay');
+
+        uploadArea.style.display = 'none';
+        fileDisplay.style.display = 'block';
+
+        const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+        const fileIcon = file.type.includes('pdf') ? '📕' : '📊';
+
+        fileDisplay.innerHTML = `
+            <div class="uploaded-file">
+                <div class="file-info">
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-details">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${fileSize} MB</div>
+                    </div>
+                </div>
+                <button type="button" class="remove-file-btn" onclick="removeFile()">Remove</button>
+            </div>
+        `;
+    }
+
+    // Remove uploaded file
+    function removeFile() {
+        uploadedFile = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('uploadedFileDisplay').style.display = 'none';
+    }
+
+    // Drag and drop handlers
+    const uploadArea = document.getElementById('uploadArea');
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('active');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('active');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('active');
+
+        const file = e.dataTransfer.files[0];
+        if (file && (file.type.includes('pdf') || file.type.includes('presentation'))) {
+            uploadedFile = file;
+            displayUploadedFile(file);
+        }
+    });
+
+    // Form submission
+    document.getElementById('quizForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!uploadedFile) {
+            alert('Please upload a file to generate the quiz');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Generating Quiz...';
+
+        // Simulate API call
+        setTimeout(() => {
+            alert('Quiz generated successfully! (This will be connected to backend)');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate Quiz';
+            // Redirect to dashboard or quiz preview
+            // window.location.href = 'dashboard.html';
+        }, 2000);
+    });
+
+    // Go back function
+    function goBack() {
+        window.history.back();
+    }
+
+    // Redirect to profile
+    function redirectToProfile() {
+        window.location.href = 'profile.html';
+    }
+</script>
+</body>
+</html>

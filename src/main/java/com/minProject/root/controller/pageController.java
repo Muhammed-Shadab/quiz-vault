@@ -34,6 +34,13 @@ public class pageController {
         return "collegeCredentials";
     }
 
+    @GetMapping("/teacherHomePage")
+    public String goToteacherHomePage() {return "teacherHomePage";}
+
+
+    @GetMapping("/createQuiz")
+    public String goToCreateQuiz() {return "createQuiz";}
+
 
 
 }
