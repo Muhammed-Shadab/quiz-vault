@@ -14,8 +14,10 @@ public class TeacherService {
     @Autowired
     private TeacherRepository teacherRepo;
 
-    public void addTeacher(Teacher t){
+    public boolean addTeacher(Teacher t){
+        if(teacherRepo.isEmailExists(t.getEmail()).isPresent()) return false;
         teacherRepo.save(t);
+        return true;
     }
 
     public boolean isTeacherVerified(Teacher t) {

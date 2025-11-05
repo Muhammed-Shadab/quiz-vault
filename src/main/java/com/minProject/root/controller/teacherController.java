@@ -3,6 +3,7 @@ package com.minProject.root.controller;
 
 import com.minProject.root.entity.Teacher;
 import com.minProject.root.service.TeacherService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,16 +20,25 @@ public class teacherController {
     private TeacherService teacherSrc;
 
     @PostMapping("/add")
-    public String addTeacher(@ModelAttribute Teacher t){
-        teacherSrc.addTeacher(t);
-        return "redirect:/welcome";
+    public String addTeacher(@ModelAttribute Teacher t, RedirectAttributes redirectAttrs, HttpSession session){
+        if(teacherSrc.addTeacher(t)) {
+            session.setAttribute("email",t.getEmail());
+            return "redirect:/teacherHomePage";
+        }
+        else{
+            redirectAttrs.addFlashAttribute("errorSignin", "Email exists!");
+            return "redirect:/teacherPortal";
+        }
     }
 
     @PostMapping("/isTeacherExists")
-    public String isTeacherVerified(@ModelAttribute Teacher t,RedirectAttributes redirectAttrs){
-        if(teacherSrc.isTeacherVerified(t)) return "redirect:/teacherHomePage";
+    public String isTeacherVerified(@ModelAttribute Teacher t,RedirectAttributes redirectAttrs,HttpSession session){
+        if(teacherSrc.isTeacherVerified(t)){
+            session.setAttribute("email",t.getEmail());
+            return "redirect:/teacherHomePage";
+        }
         else{
-            redirectAttrs.addFlashAttribute("error", "Invalid email or password");
+            redirectAttrs.addFlashAttribute("errorLogin", "Invalid email or password");
             return "redirect:/teacherPortal";
         }
 

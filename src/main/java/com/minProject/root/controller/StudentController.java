@@ -22,6 +22,7 @@ public class StudentController {
     public String addStudent(@ModelAttribute Student stn, Model model){
         model.addAttribute("teacherName", stn.getName());
         studentSrc.addStudent(stn);
+
         return "redirect:/welcome";
     }
 
