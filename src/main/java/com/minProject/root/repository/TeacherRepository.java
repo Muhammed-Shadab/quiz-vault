@@ -18,4 +18,5 @@ public interface TeacherRepository extends JpaRepository<Teacher,Long> {
 
     @Query("SELECT t FROM Teacher t WHERE t.email = :email")
     Teacher GetByEmail(@Param("email") String email);
+
 }

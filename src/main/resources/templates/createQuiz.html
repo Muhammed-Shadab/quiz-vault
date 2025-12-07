@@ -6,8 +6,8 @@
     <title>QuizVault - Create Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/createQuiz.css}">
-
 </head>
+
 <body>
 <nav class="top-nav">
     <a href="#" class="logo">QuizVault</a>
@@ -22,136 +22,117 @@
             <p class="page-subtitle">Upload content and customize settings</p>
         </div>
 
-        <form id="quizForm">
+        <!-- FIXED: enctype added, file name added, difficulty name added -->
+        <form th:action="@{/Quiz/generateQuiz}" method="post" enctype="multipart/form-data">
+
+            <!-- BASIC INFO -->
             <div class="form-card">
                 <h2 class="section-title">Basic Information</h2>
+
                 <div class="form-group">
                     <label class="form-label">Quiz Title *</label>
-                    <input type="text" id="quizTitle" class="form-input" placeholder="Enter quiz title" required>
+                    <input name="title" type="text" id="quizTitle" class="form-input"
+                           placeholder="Enter quiz title" required>
                 </div>
+
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea id="quizDescription" class="form-input" placeholder="Brief description (optional)"></textarea>
+                    <textarea name="description" id="quizDescription" class="form-input"
+                              placeholder="Brief description (optional)"></textarea>
                 </div>
             </div>
 
+            <!-- UPLOAD SECTION -->
             <div class="form-card">
                 <h2 class="section-title">Upload Content</h2>
-                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+
+                <div class="upload-area" id="uploadArea"
+                     onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📄</div>
                     <div class="upload-text">Click to upload or drag and drop</div>
                     <div class="upload-subtext">PPT, PPTX, or PDF (Max 50MB)</div>
                 </div>
-                <input type="file" id="fileInput" class="file-input" accept=".ppt,.pptx,.pdf" onchange="handleFileSelect(event)">
+
+                <!-- FIXED: name="file" ADDED -->
+                <input type="file" id="fileInput" name="file" class="file-input"
+                       accept=".ppt,.pptx,.pdf" onchange="handleFileSelect(event)" required>
+
                 <div id="uploadedFileDisplay" style="display: none;"></div>
             </div>
 
+            <!-- QUIZ SETTINGS -->
             <div class="form-card">
                 <h2 class="section-title">Quiz Settings</h2>
+
                 <div class="input-grid-3">
                     <div class="form-group">
                         <label class="form-label">Questions *</label>
-                        <input type="number" id="numQuestions" class="form-input" placeholder="10" min="1" max="100" value="10" required>
+                        <input name="questionsCount" type="number" id="numQuestions" class="form-input"
+                               placeholder="10" min="1" max="100" value="10" required>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Duration (min) *</label>
-                        <input type="number" id="duration" class="form-input" placeholder="30" min="1" max="180" value="30" required>
+                        <input name="duration" type="number" id="duration" class="form-input"
+                               placeholder="30" min="1" max="180" value="30" required>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Marks/Question *</label>
-                        <input type="number" id="marksPerQuestion" class="form-input" placeholder="1" min="1" max="10" value="1" required>
+                        <input name="marksOfEachQuestion" type="number" id="marksPerQuestion" class="form-input"
+                               placeholder="1" min="1" max="10" value="1" required>
                     </div>
                 </div>
 
                 <div class="input-grid">
                     <div class="form-group">
                         <label class="form-label">Difficulty *</label>
-                        <select id="difficulty" class="form-input" required>
+
+                        <!-- FIXED: name="difficulty" ADDED -->
+                        <select id="difficulty" name="difficulty" class="form-input" required>
                             <option value="">Select difficulty</option>
                             <option value="easy">Easy</option>
                             <option value="medium" selected>Medium</option>
                             <option value="hard">Hard</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Expires At *</label>
-                        <input type="datetime-local" id="expiresAt" class="form-input" required>
+                        <input name="ExpireAt" type="datetime-local" id="expiresAt" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Room Name</label>
+                        <input name="roomName" type="text" class="form-input" required>
                     </div>
                 </div>
             </div>
 
+            <!-- SUBMIT BUTTONS -->
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
-                <button type="button" class="btn btn-outline" onclick="addManually()">Add Questions Manually</button>
                 <button type="submit" class="btn btn-primary" id="submitBtn">Generate Quiz</button>
             </div>
         </form>
     </div>
-
-    <!-- Review & Edit Page -->
-    <div id="reviewPage" class="hidden">
-        <div class="page-header">
-            <h1 class="page-title">Review & Edit Content</h1>
-            <p class="page-subtitle">Review your uploaded content before generating quiz</p>
-        </div>
-
-        <div class="form-card">
-            <h2 class="section-title">Quiz Information</h2>
-            <div class="quiz-info-grid" id="quizInfoGrid">
-                <!-- Quiz info will be inserted here -->
-            </div>
-        </div>
-
-        <div class="form-card">
-            <h2 class="section-title">Document Content</h2>
-            <div id="contentViewMode">
-                <div class="content-viewer">
-                    <div class="content-text" id="documentContent"></div>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-secondary btn-small" onclick="enableEditing()">
-                        ✏️ Edit Content
-                    </button>
-                </div>
-            </div>
-
-            <div id="contentEditMode" class="hidden">
-                <textarea class="edit-content-area" id="editableContent"></textarea>
-                <div class="action-buttons">
-                    <button class="btn btn-secondary btn-small" onclick="cancelEditing()">
-                        ❌ Cancel
-                    </button>
-                    <button class="btn btn-primary btn-small" onclick="saveEditing()">
-                        ✓ Save Changes
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <button class="btn btn-secondary" onclick="backToCreate()">
-                ← Back to Edit Settings
-            </button>
-            <button class="btn btn-primary" onclick="activateQuiz()">
-                Activate Quiz ✓
-            </button>
-        </div>
-    </div>
 </div>
 
+<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
     let uploadedFile = null;
     let fileContent = '';
-    let quizData = {};
     let pdfDoc = null;
     let currentPage = 1;
     let totalPages = 0;
     let pageRendering = false;
 
-    // Set PDF.js worker
+    // PDF worker setup
     if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
 
     function handleFileSelect(event) {
@@ -170,14 +151,12 @@
 
         try {
             if (file.type === 'application/pdf') {
-                // Just load the PDF for viewing, don't extract text
                 const arrayBuffer = await file.arrayBuffer();
                 const typedarray = new Uint8Array(arrayBuffer);
                 pdfDoc = await pdfjsLib.getDocument(typedarray).promise;
                 totalPages = pdfDoc.numPages;
-                fileContent = 'PDF_LOADED'; // Flag that PDF is ready
+                fileContent = 'PDF_LOADED';
             } else {
-                // For PPT files
                 fileContent = 'PPT_LOADED';
             }
         } catch (error) {
@@ -189,50 +168,10 @@
         }
     }
 
-    async function renderPDFPage(pageNum) {
-        if (pageRendering || !pdfDoc) return;
-        pageRendering = true;
-
-        const page = await pdfDoc.getPage(pageNum);
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.getElementById('pdf-canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        await page.render({
-            canvasContext: context,
-            viewport: viewport
-        }).promise;
-
-        pageRendering = false;
-        document.getElementById('page-num').textContent = pageNum;
-        document.getElementById('prev-page').disabled = pageNum <= 1;
-        document.getElementById('next-page').disabled = pageNum >= totalPages;
-    }
-
-    function prevPage() {
-        if (currentPage <= 1) return;
-        currentPage--;
-        renderPDFPage(currentPage);
-    }
-
-    function nextPage() {
-        if (currentPage >= totalPages) return;
-        currentPage++;
-        renderPDFPage(currentPage);
-    }
-
-    async function extractPDFText(file) {
-        // This function is no longer used - keeping for compatibility
-        return 'PDF loaded for viewing';
-    }
-
     function displayUploadedFile(file) {
         const uploadArea = document.getElementById('uploadArea');
         const fileDisplay = document.getElementById('uploadedFileDisplay');
+
         uploadArea.style.display = 'none';
         fileDisplay.style.display = 'block';
 
@@ -274,162 +213,17 @@
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('active');
+
         const file = e.dataTransfer.files[0];
-        if (file && (file.type.includes('pdf') || file.type.includes('presentation'))) {
+        if (file) {
+            document.getElementById('fileInput').files = e.dataTransfer.files;
             uploadedFile = file;
             displayUploadedFile(file);
             readFileContent(file);
         }
     });
 
-    document.getElementById('quizForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!uploadedFile) {
-            alert('Please upload a file to generate the quiz');
-            return;
-        }
-
-        if (!fileContent || fileContent === 'ERROR_LOADING') {
-            alert('Please wait for the file to be processed');
-            return;
-        }
-
-        // Store quiz data
-        quizData = {
-            title: document.getElementById('quizTitle').value,
-            description: document.getElementById('quizDescription').value,
-            questions: document.getElementById('numQuestions').value,
-            duration: document.getElementById('duration').value,
-            marksPerQuestion: document.getElementById('marksPerQuestion').value,
-            difficulty: document.getElementById('difficulty').value,
-            expiresAt: document.getElementById('expiresAt').value,
-            fileName: uploadedFile.name
-        };
-
-        showReviewPage();
-    });
-
-    function showReviewPage() {
-        document.getElementById('createPage').classList.add('hidden');
-        document.getElementById('reviewPage').classList.remove('hidden');
-
-        // Display quiz info
-        const infoGrid = document.getElementById('quizInfoGrid');
-        infoGrid.innerHTML = `
-            <div class="info-item">
-                <div class="info-label">Quiz Title</div>
-                <div class="info-value">${quizData.title}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Questions</div>
-                <div class="info-value">${quizData.questions}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Duration</div>
-                <div class="info-value">${quizData.duration} min</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Marks/Question</div>
-                <div class="info-value">${quizData.marksPerQuestion}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Difficulty</div>
-                <div class="info-value">${quizData.difficulty.charAt(0).toUpperCase() + quizData.difficulty.slice(1)}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">File</div>
-                <div class="info-value">${quizData.fileName}</div>
-            </div>
-        `;
-
-        // Display content based on file type
-        if (uploadedFile.type === 'application/pdf') {
-            document.getElementById('documentContent').innerHTML = `
-                <div class="pdf-viewer">
-                    <canvas id="pdf-canvas"></canvas>
-                    <div class="pdf-controls">
-                        <button id="prev-page" onclick="prevPage()">← Previous</button>
-                        <span class="pdf-page-info">
-                            Page <span id="page-num">1</span> of <span id="page-count">${totalPages}</span>
-                        </span>
-                        <button id="next-page" onclick="nextPage()">Next →</button>
-                    </div>
-                </div>
-            `;
-            renderPDFPage(1);
-        } else {
-            // PPT or other files
-            document.getElementById('documentContent').innerHTML = `
-                <div class="ppt-viewer">
-                    <div class="file-preview-icon">📊</div>
-                    <div class="file-preview-text">
-                        <h3>${quizData.fileName}</h3>
-                        <p>PowerPoint preview is not available in browser.</p>
-                        <p>The quiz will be generated from this file.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        document.getElementById('editableContent').value = `Content from: ${quizData.fileName}\n\nYou can add notes or additional content here that will be used for quiz generation.`;
-    }
-
-    function enableEditing() {
-        document.getElementById('contentViewMode').classList.add('hidden');
-        document.getElementById('contentEditMode').classList.remove('hidden');
-    }
-
-    function cancelEditing() {
-        document.getElementById('contentEditMode').classList.add('hidden');
-        document.getElementById('contentViewMode').classList.remove('hidden');
-        document.getElementById('editableContent').value = fileContent;
-    }
-
-    function saveEditing() {
-        fileContent = document.getElementById('editableContent').value;
-
-        if (uploadedFile && uploadedFile.type === 'application/pdf') {
-            // Keep PDF viewer for PDFs
-            document.getElementById('contentEditMode').classList.add('hidden');
-            document.getElementById('contentViewMode').classList.remove('hidden');
-        } else {
-            // Update text view for non-PDFs
-            document.getElementById('documentContent').innerHTML = `
-                <div class="content-text">${fileContent}</div>
-            `;
-            document.getElementById('contentEditMode').classList.add('hidden');
-            document.getElementById('contentViewMode').classList.remove('hidden');
-        }
-
-        alert('Notes saved successfully!');
-    }
-
-    function backToCreate() {
-        document.getElementById('reviewPage').classList.add('hidden');
-        document.getElementById('createPage').classList.remove('hidden');
-        currentPage = 1; // Reset page number
-    }
-
-    function activateQuiz() {
-        const confirmed = confirm('Are you sure you want to activate this quiz? Once activated, students will be able to take it.');
-        if (confirmed) {
-            alert('Quiz activated successfully! Redirecting to dashboard...');
-            // window.location.href = 'dashboard.html';
-        }
-    }
-
-    function goBack() {
-        window.history.back();
-    }
-
-    function addManually() {
-        alert('Redirecting to manual question editor...');
-        // window.location.href = 'add-questions.html';
-    }
-
-    function redirectToProfile() {
-        window.location.href = 'profile.html';
-    }
 </script>
+
 </body>
 </html>

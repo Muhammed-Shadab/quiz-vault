@@ -4,6 +4,7 @@ package com.minProject.root.controller;
 import com.minProject.root.entity.Student;
 import com.minProject.root.entity.Teacher;
 import com.minProject.root.service.StudentService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,16 +20,19 @@ public class StudentController {
     private StudentService studentSrc;
 
     @PostMapping("/add")
-    public String addStudent(@ModelAttribute Student stn, Model model){
-        model.addAttribute("teacherName", stn.getName());
+    public String addStudent(@ModelAttribute Student stn, Model model,HttpSession session){
+        model.addAttribute("studentName", stn.getName());
         studentSrc.addStudent(stn);
-
-        return "redirect:/welcome";
+        session.setAttribute("StudentEmail",stn.getEmail());
+        return "redirect:/studentHomePage";
     }
 
     @PostMapping("/isStudentExists")
-    public String isStudentVerified(@ModelAttribute Student st, RedirectAttributes redirectAttrs){
-        if(studentSrc.isStudentVerified(st)) return "redirect:/studentHomePage";
+    public String isStudentVerified(@ModelAttribute Student st, RedirectAttributes redirectAttrs, HttpSession session){
+        if(studentSrc.isStudentVerified(st)) {
+            session.setAttribute("StudentEmail",st.getEmail());
+            return "redirect:/studentHomePage";
+        }
         else{
             redirectAttrs.addFlashAttribute("error", "Invalid email or password");
             return "redirect:/studentPortal";

@@ -22,7 +22,7 @@ public class teacherController {
     @PostMapping("/add")
     public String addTeacher(@ModelAttribute Teacher t, RedirectAttributes redirectAttrs, HttpSession session){
         if(teacherSrc.addTeacher(t)) {
-            session.setAttribute("email",t.getEmail());
+            session.setAttribute("teacherEmail",t.getEmail());
             return "redirect:/teacherHomePage";
         }
         else{
@@ -34,7 +34,7 @@ public class teacherController {
     @PostMapping("/isTeacherExists")
     public String isTeacherVerified(@ModelAttribute Teacher t,RedirectAttributes redirectAttrs,HttpSession session){
         if(teacherSrc.isTeacherVerified(t)){
-            session.setAttribute("email",t.getEmail());
+            session.setAttribute("teacherEmail",t.getEmail());
             return "redirect:/teacherHomePage";
         }
         else{

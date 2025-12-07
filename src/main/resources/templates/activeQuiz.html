@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/createQuiz.css}">
+</head>
+<body>
+<!-- Review & Edit Page -->
+<div id="reviewPage" class="hidden">
+    <div class="page-header">
+        <h1 class="page-title">Review & Edit Content</h1>
+        <p class="page-subtitle">Review your uploaded content before generating quiz</p>
+    </div>
+
+    <div class="form-card">
+        <h2 class="section-title">Quiz Information</h2>
+        <div class="quiz-info-grid" id="quizInfoGrid">
+            <!-- Quiz info will be inserted here -->
+        </div>
+    </div>
+
+    <div class="form-card">
+        <h2 class="section-title">Document Content</h2>
+        <div id="contentViewMode">
+            <div class="content-viewer">
+                <div class="content-text" id="documentContent"></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary btn-small" onclick="enableEditing()">
+                    ✏️ Edit Content
+                </button>
+            </div>
+        </div>
+
+        <div id="contentEditMode" class="hidden">
+            <textarea class="edit-content-area" id="editableContent"></textarea>
+            <div class="action-buttons">
+                <button class="btn btn-secondary btn-small" onclick="cancelEditing()">
+                    ❌ Cancel
+                </button>
+                <button class="btn btn-primary btn-small" onclick="saveEditing()">
+                    ✓ Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn-secondary" onclick="backToCreate()">
+            ← Back to Edit Settings
+        </button>
+        <button class="btn btn-primary" onclick="activateQuiz()">
+            Activate Quiz ✓
+        </button>
+    </div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    let uploadedFile = null;
+    let fileContent = '';
+    let quizData = {};
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 0;
+    let pageRendering = false;
+
+    // Set PDF.js worker
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            uploadedFile = file;
+            displayUploadedFile(file);
+            readFileContent(file);
+        }
+    }
+
+    async function readFileContent(file) {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+        try {
+            if (file.type === 'application/pdf') {
+                // Just load the PDF for viewing, don't extract text
+                const arrayBuffer = await file.arrayBuffer();
+                const typedarray = new Uint8Array(arrayBuffer);
+                pdfDoc = await pdfjsLib.getDocument(typedarray).promise;
+                totalPages = pdfDoc.numPages;
+                fileContent = 'PDF_LOADED'; // Flag that PDF is ready
+            } else {
+                // For PPT files
+                fileContent = 'PPT_LOADED';
+            }
+        } catch (error) {
+            console.error('Error loading file:', error);
+            fileContent = 'ERROR_LOADING';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate Quiz';
+        }
+    }
+
+    async function renderPDFPage(pageNum) {
+        if (pageRendering || !pdfDoc) return;
+        pageRendering = true;
+
+        const page = await pdfDoc.getPage(pageNum);
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.getElementById('pdf-canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({
+            canvasContext: context,
+            viewport: viewport
+        }).promise;
+
+        pageRendering = false;
+        document.getElementById('page-num').textContent = pageNum;
+        document.getElementById('prev-page').disabled = pageNum <= 1;
+        document.getElementById('next-page').disabled = pageNum >= totalPages;
+    }
+
+    function prevPage() {
+        if (currentPage <= 1) return;
+        currentPage--;
+        renderPDFPage(currentPage);
+    }
+
+    function nextPage() {
+        if (currentPage >= totalPages) return;
+        currentPage++;
+        renderPDFPage(currentPage);
+    }
+
+    async function extractPDFText(file) {
+        // This function is no longer used - keeping for compatibility
+        return 'PDF loaded for viewing';
+    }
+
+    function displayUploadedFile(file) {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileDisplay = document.getElementById('uploadedFileDisplay');
+        uploadArea.style.display = 'none';
+        fileDisplay.style.display = 'block';
+
+        const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+        const fileIcon = file.type.includes('pdf') ? '📕' : '📊';
+
+        fileDisplay.innerHTML = `
+            <div class="uploaded-file">
+                <div class="file-info">
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-details">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${fileSize} MB</div>
+                    </div>
+                </div>
+                <button type="button" class="remove-file-btn" onclick="removeFile()">Remove</button>
+            </div>
+        `;
+    }
+
+    function removeFile() {
+        uploadedFile = null;
+        fileContent = '';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('uploadedFileDisplay').style.display = 'none';
+    }
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('active');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('active');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('active');
+        const file = e.dataTransfer.files[0];
+        if (file && (file.type.includes('pdf') || file.type.includes('presentation'))) {
+            uploadedFile = file;
+            displayUploadedFile(file);
+            readFileContent(file);
+        }
+    });
+
+    document.getElementById('quizForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!uploadedFile) {
+            alert('Please upload a file to generate the quiz');
+            return;
+        }
+
+        if (!fileContent || fileContent === 'ERROR_LOADING') {
+            alert('Please wait for the file to be processed');
+            return;
+        }
+
+        // Store quiz data
+        quizData = {
+            title: document.getElementById('quizTitle').value,
+            description: document.getElementById('quizDescription').value,
+            questions: document.getElementById('numQuestions').value,
+            duration: document.getElementById('duration').value,
+            marksPerQuestion: document.getElementById('marksPerQuestion').value,
+            difficulty: document.getElementById('difficulty').value,
+            expiresAt: document.getElementById('expiresAt').value,
+            fileName: uploadedFile.name
+        };
+
+        showReviewPage();
+    });
+
+    function showReviewPage() {
+        document.getElementById('createPage').classList.add('hidden');
+        document.getElementById('reviewPage').classList.remove('hidden');
+
+        // Display quiz info
+        const infoGrid = document.getElementById('quizInfoGrid');
+        infoGrid.innerHTML = `
+            <div class="info-item">
+                <div class="info-label">Quiz Title</div>
+                <div class="info-value">${quizData.title}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Questions</div>
+                <div class="info-value">${quizData.questions}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Duration</div>
+                <div class="info-value">${quizData.duration} min</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Marks/Question</div>
+                <div class="info-value">${quizData.marksPerQuestion}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Difficulty</div>
+                <div class="info-value">${quizData.difficulty.charAt(0).toUpperCase() + quizData.difficulty.slice(1)}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">File</div>
+                <div class="info-value">${quizData.fileName}</div>
+            </div>
+        `;
+
+        // Display content based on file type
+        if (uploadedFile.type === 'application/pdf') {
+            document.getElementById('documentContent').innerHTML = `
+                <div class="pdf-viewer">
+                    <canvas id="pdf-canvas"></canvas>
+                    <div class="pdf-controls">
+                        <button id="prev-page" onclick="prevPage()">← Previous</button>
+                        <span class="pdf-page-info">
+                            Page <span id="page-num">1</span> of <span id="page-count">${totalPages}</span>
+                        </span>
+                        <button id="next-page" onclick="nextPage()">Next →</button>
+                    </div>
+                </div>
+            `;
+            renderPDFPage(1);
+        } else {
+            // PPT or other files
+            document.getElementById('documentContent').innerHTML = `
+                <div class="ppt-viewer">
+                    <div class="file-preview-icon">📊</div>
+                    <div class="file-preview-text">
+                        <h3>${quizData.fileName}</h3>
+                        <p>PowerPoint preview is not available in browser.</p>
+                        <p>The quiz will be generated from this file.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('editableContent').value = `Content from: ${quizData.fileName}\n\nYou can add notes or additional content here that will be used for quiz generation.`;
+    }
+
+    function enableEditing() {
+        document.getElementById('contentViewMode').classList.add('hidden');
+        document.getElementById('contentEditMode').classList.remove('hidden');
+    }
+
+    function cancelEditing() {
+        document.getElementById('contentEditMode').classList.add('hidden');
+        document.getElementById('contentViewMode').classList.remove('hidden');
+        document.getElementById('editableContent').value = fileContent;
+    }
+
+    function saveEditing() {
+        fileContent = document.getElementById('editableContent').value;
+
+        if (uploadedFile && uploadedFile.type === 'application/pdf') {
+            // Keep PDF viewer for PDFs
+            document.getElementById('contentEditMode').classList.add('hidden');
+            document.getElementById('contentViewMode').classList.remove('hidden');
+        } else {
+            // Update text view for non-PDFs
+            document.getElementById('documentContent').innerHTML = `
+                <div class="content-text">${fileContent}</div>
+            `;
+            document.getElementById('contentEditMode').classList.add('hidden');
+            document.getElementById('contentViewMode').classList.remove('hidden');
+        }
+
+        alert('Notes saved successfully!');
+    }
+
+    function backToCreate() {
+        document.getElementById('reviewPage').classList.add('hidden');
+        document.getElementById('createPage').classList.remove('hidden');
+        currentPage = 1; // Reset page number
+    }
+
+    function activateQuiz() {
+        const confirmed = confirm('Are you sure you want to activate this quiz? Once activated, students will be able to take it.');
+        if (confirmed) {
+            alert('Quiz activated successfully! Redirecting to dashboard...');
+            // window.location.href = 'dashboard.html';
+        }
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+
+    function addManually() {
+        alert('Redirecting to manual question editor...');
+        // window.location.href = 'add-questions.html';
+    }
+
+    function redirectToProfile() {
+        window.location.href = 'profile.html';
+    }
+</script>
+</body>
+</html>

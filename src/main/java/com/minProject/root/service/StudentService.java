@@ -1,7 +1,6 @@
 package com.minProject.root.service;
 
 import com.minProject.root.entity.Student;
-import com.minProject.root.entity.Teacher;
 import com.minProject.root.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

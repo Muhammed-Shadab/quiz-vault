@@ -1,0 +1,303 @@
+/* Main Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 1.8em;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* Question Container */
+#question-container {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+/* Individual Question Styling */
+.fade-slide {
+    opacity: 1;
+    max-height: 500px;
+    overflow: hidden;
+    transition: opacity 0.4s, max-height 0.4s;
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #0275d8;
+}
+
+.fade-slide.hide {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.fade-slide p {
+    color: #ffffff;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.fade-slide b {
+    color: #ffffff;
+}
+
+/* Radio Button and Label Styling */
+.fade-slide input[type="radio"] {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #0275d8;
+}
+
+.fade-slide label {
+    color: #ffffff;
+    font-size: 1em;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.fade-slide label:hover {
+    color: #e0e0e0;
+}
+
+.fade-slide div {
+    margin: 8px 0;
+}
+
+/* Horizontal Rule */
+hr {
+    border: none;
+    border-top: 1px solid #444444;
+    margin: 20px 0;
+}
+
+/* Form Styling */
+form {
+    background-color: #1a1a1a;
+    padding: 25px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+form label {
+    color: #ffffff;
+    font-weight: 500;
+    display: inline-block;
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    width: 300px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+form input[type="text"]:focus {
+    outline: none;
+    border-color: #0275d8;
+    background-color: #333333;
+}
+
+form select {
+    padding: 8px 12px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+form select:focus {
+    outline: none;
+    border-color: #0275d8;
+}
+
+/* Button Base Styling */
+button {
+    padding: 10px 20px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: #d9534f;
+}
+
+.delete-btn:hover {
+    background-color: #c9302c;
+}
+
+/* Add Button */
+.add-btn {
+    background-color: #5cb85c;
+    padding: 12px 24px;
+    font-size: 15px;
+}
+
+.add-btn:hover {
+    background-color: #449d44;
+}
+
+/* Activate Button */
+.activate-btn {
+    background-color: #0275d8;
+    padding: 12px 30px;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.activate-btn:hover {
+    background-color: #025aa5;
+}
+
+/* Popup Modal Styling */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.popup-overlay.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.popup-content {
+    background-color: #1a1a1a;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.1);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    border: 2px solid #0275d8;
+    animation: slideIn 0.3s ease;
+}
+
+.popup-content h3 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.popup-content p {
+    color: #ffffff;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.popup-close-btn {
+    background-color: #0275d8;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s;
+}
+
+.popup-close-btn:hover {
+    background-color: #025aa5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading State */
+.loading {
+    color: #0275d8;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    form input[type="text"] {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    form label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .popup-content {
+        padding: 30px 20px;
+    }
+}

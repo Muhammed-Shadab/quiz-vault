@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizWorld - Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/studentHomePage.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">QuizWorld</div>
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" placeholder="Search">
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn">🔔</button>
+            <button class="icon-btn">💬</button>
+            <button class="logout-btn">
+                <span>⚙️</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <a href="#" class="nav-item active">
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>My Rooms</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>Active Quizzes</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>Quiz History</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>Performance</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span>Back</span>
+            </a>
+        </aside>
+
+        <main class="main-content">
+            <div class="welcome-section">
+                <h1>Welcome back, Shadab 👋</h1>
+                <p>Ready to test your skills today?</p>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <h2 class="section-title">Active Quizzes</h2>
+                    <div class="quizzes-grid">
+                        <div class="quiz-card">
+                            <h3>Physics</h3>
+                            <div class="subtitle">Chapter 3: Thermodynamics</div>
+                            <div class="timing">Starts in 2 days</div>
+                            <button class="start-quiz-btn">Start Quiz</button>
+                        </div>
+                        <div class="quiz-card">
+                            <h3>Chemistry</h3>
+                            <div class="subtitle">Atomic Structure</div>
+                            <div class="timing">Ends in 3 hrs</div>
+                            <button class="start-quiz-btn">Start Quiz</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="suggested-section">
+                    <h2 class="section-title">Suggested Quizzes</h2>
+                    <div class="recommended-tag">Recommended for you</div>
+                    <div class="suggested-quiz">
+                        <h3>Biology</h3>
+                        <div class="subtitle">Genetics</div>
+                        <button class="start-quiz-btn">Start Quiz</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="results-section">
+                    <h2 class="section-title">Recent Quiz Results</h2>
+                    <div class="results-table">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Quiz</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Chapter 1.Motion</td>
+                                <td><span class="score-badge score-high">85%</span></td>
+                                <td>Sep 15, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>Algebra</td>
+                                <td><span class="score-badge score-perfect">100%</span></td>
+                                <td>Sep 10, 2024</td>
+                            </tr>
+                            <tr>
+                                <td>Indials Geography</td>
+                                <td><span class="score-badge score-high">40%</span></td>
+                                <td>Sep 5, 2024</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="notifications-section">
+                    <h2 class="section-title">Notifications</h2>
+                    <div class="notification-item">
+                        <div class="notification-title">Quiz on Algebra</div>
+                        <div class="notification-detail">starts at 4:00 PM</div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-title">New message from Prof_Sharma</div>
+                        <div class="notification-detail">Sep 14, 2024</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Navigation active state
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Quiz card hover effect
+    document.querySelectorAll('.quiz-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 8px 24px rgba(79, 93, 201, 0.15)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Start Quiz button handlers
+    document.querySelectorAll('.start-quiz-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert('Starting quiz...');
+            // For Thymeleaf: th:onclick="|startQuiz(${quiz.id})|"
+        });
+    });
+
+    // Search functionality placeholder
+    document.querySelector('.search-bar input').addEventListener('input', function(e) {
+        console.log('Searching for:', e.target.value);
+        // For Thymeleaf: implement search logic
+    });
+</script>
+</body>
+</html>

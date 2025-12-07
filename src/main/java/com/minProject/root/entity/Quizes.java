@@ -1,30 +1,32 @@
 package com.minProject.root.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.*;
 
-@Entity
 @Data
 @NoArgsConstructor
+@Entity
 public class Quizes {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long quizId;
+    private Long QuizId;
 
     private String title;
     private String description;
     private int questionsCount;
+    private int duration;
     private int marksOfEachQuestion;
-    private String type;
-    private LocalDateTime createdAt;
-    private LocalDateTime ExpireAt;
+    private String difficulty;
+    private String roomName;
+    private LocalDateTime expireAt;
 
-    @ManyToOne
-    @JoinColumn(name = "teacherId")  // foreign key column
-    private Teacher teacherId;
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<Question> questions;
+
+    private String url;
+
 }

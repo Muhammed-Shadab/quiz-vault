@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Java Quiz</title>
+<!--    <link rel="stylesheet" th:href="@{/css/generatedQuiz.css}">-->
+    <style>
+        /* Main Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 1.8em;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* Question Container */
+#question-container {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+/* Individual Question Styling */
+.fade-slide {
+    opacity: 1;
+    max-height: 500px;
+    overflow: hidden;
+    transition: opacity 0.4s, max-height 0.4s;
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #0275d8;
+}
+
+.fade-slide.hide {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.fade-slide p {
+    color: #ffffff;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.fade-slide b {
+    color: #ffffff;
+}
+
+/* Radio Button and Label Styling */
+.fade-slide input[type="radio"] {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #0275d8;
+}
+
+.fade-slide label {
+    color: #ffffff;
+    font-size: 1em;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.fade-slide label:hover {
+    color: #e0e0e0;
+}
+
+.fade-slide div {
+    margin: 8px 0;
+}
+
+/* Horizontal Rule */
+hr {
+    border: none;
+    border-top: 1px solid #444444;
+    margin: 20px 0;
+}
+
+/* Form Styling */
+form {
+    background-color: #1a1a1a;
+    padding: 25px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+form label {
+    color: #ffffff;
+    font-weight: 500;
+    display: inline-block;
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    width: 300px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+form input[type="text"]:focus {
+    outline: none;
+    border-color: #0275d8;
+    background-color: #333333;
+}
+
+form select {
+    padding: 8px 12px;
+    border: 1px solid #444444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+form select:focus {
+    outline: none;
+    border-color: #0275d8;
+}
+
+/* Button Base Styling */
+button {
+    padding: 10px 20px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: #d9534f;
+}
+
+.delete-btn:hover {
+    background-color: #c9302c;
+}
+
+/* Add Button */
+.add-btn {
+    background-color: #5cb85c;
+    padding: 12px 24px;
+    font-size: 15px;
+}
+
+.add-btn:hover {
+    background-color: #449d44;
+}
+
+/* Activate Button */
+.activate-btn {
+    background-color: #0275d8;
+    padding: 12px 30px;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.activate-btn:hover {
+    background-color: #025aa5;
+}
+
+/* Popup Modal Styling */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.popup-overlay.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.popup-content {
+    background-color: #1a1a1a;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.1);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    border: 2px solid #0275d8;
+    animation: slideIn 0.3s ease;
+}
+
+.popup-content h3 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.popup-content p {
+    color: #ffffff;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.popup-close-btn {
+    background-color: #0275d8;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s;
+}
+
+.popup-close-btn:hover {
+    background-color: #025aa5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading State */
+.loading {
+    color: #0275d8;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    form input[type="text"] {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    form label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .popup-content {
+        padding: 30px 20px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<h1>Java Quiz</h1>
+<!-- QUIZ QUESTIONS -->
+<div id="question-container">
+    <div th:each="question, qStat : ${questions}"
+         th:id="'question-' + ${qStat.index}"
+         th:data-index="${qStat.index}"
+         class="fade-slide">
+
+        <p><b th:text="|${qStat.index + 1}. ${question.question}|"></b></p>
+
+        <div th:each="option, oStat : ${question.options}">
+            <input type="radio"
+                   th:name="'question' + ${qStat.index}"
+                   th:id="'q' + ${qStat.index} + 'o' + ${oStat.index}"
+                   th:value="${option}" required>
+            <label th:for="'q' + ${qStat.index} + 'o' + ${oStat.index}" th:text="${option}"></label><br>
+        </div>
+
+        <button type="button" class="delete-btn"
+                th:onclick="'deleteQuestion(' + ${qStat.index} + ');'">
+            Delete Question
+        </button>
+        <hr>
+    </div>
+</div>
+
+<!-- REMOVE OLD SUBMIT BUTTON -->
+
+
+<!-- ADD QUESTION FORM -->
+<h2>Add New Question</h2>
+
+<form id="addQuestionForm">
+    <label>Question:</label><input type="text" name="question" required><br><br>
+    <label>Option 1:</label><input type="text" name="option1" required><br>
+    <label>Option 2:</label><input type="text" name="option2" required><br>
+    <label>Option 3:</label><input type="text" name="option3" required><br>
+    <label>Option 4:</label><input type="text" name="option4" required><br><br>
+    <label>Correct Option:</label>
+    <select name="correctIndex" required>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+        <option value="4">Option 4</option>
+    </select><br><br>
+
+    <button class="add-btn" type="submit">Add Question</button>
+</form>
+
+<br><br>
+
+<!-- NEW BUTTON: ACTIVATE QUIZ -->
+<button class="activate-btn" onclick="activateQuiz()">Activate Quiz</button>
+
+
+<script>
+    /* ------------------------------- DELETE ------------------------------ */
+async function deleteQuestion(index) {
+    if (!confirm("Are you sure you want to delete this question?")) return;
+
+    const element = document.querySelector(`[data-index='${index}']`);
+    if (!element) return;
+
+    element.classList.add("hide");
+
+    setTimeout(async () => {
+        const response = await fetch('/Quiz/deleteQuestion/' + index, { method: 'POST' });
+        if (response.ok) {
+            element.remove();
+            reindexQuestions();
+        }
+    }, 400);
+}
+
+    /* -------------------------- REINDEX QUESTIONS ------------------------- */
+    function reindexQuestions() {
+        const questionDivs = document.querySelectorAll("#question-container > div");
+
+        questionDivs.forEach((div, i) => {
+            div.id = "question-" + i;
+            div.dataset.index = i;
+
+            const title = div.querySelector("p b");
+            const oldText = title.textContent.split(". ")[1];
+            title.textContent = (i + 1) + ". " + oldText;
+
+            const radios = div.querySelectorAll("input[type='radio']");
+            radios.forEach((radio, j) => {
+                radio.id = "q" + i + "o" + j;
+                radio.name = "question" + i;
+                const label = radio.nextElementSibling;
+                label.htmlFor = radio.id;
+            });
+
+            const btn = div.querySelector("button.delete-btn");
+            btn.setAttribute("onclick", "deleteQuestion(" + i + ");");
+        });
+    }
+
+    /* ----------------------------- ADD QUESTION --------------------------- */
+    document.getElementById("addQuestionForm").addEventListener("submit", async function (e) {
+        e.preventDefault(); // stop reload
+
+        const formData = new FormData(this);
+
+        const response = await fetch("/Quiz/addQuestion", {
+            method: "POST",
+            body: formData
+        });
+
+        const newQuestion = await response.json(); // EXPECTING JSON RETURN
+
+        addQuestionToPage(newQuestion);
+        this.reset();
+    });
+
+    /* ----------- FUNCTION TO APPEND NEW QUESTION WITHOUT RELOAD ----------- */
+function addQuestionToPage(q) {
+    const index = document.querySelectorAll("#question-container > div").length;
+
+    const div = document.createElement("div");
+    div.className = "fade-slide";
+    div.id = "question-" + index;
+    div.dataset.index = index;
+
+    let html = `<p><b>${index + 1}. ${q.question}</b></p>`;
+
+    q.options.forEach((opt, i) => {
+        html += `
+            <input type="radio" name="question${index}" id="q${index}o${i}" value="${opt}">
+            <label for="q${index}o${i}">${opt}</label><br>
+        `;
+    });
+
+    html += `
+        <button type="button" class="delete-btn" onclick="deleteQuestion(${index})">
+            Delete Question
+        </button>
+        <hr>
+    `;
+
+    div.innerHTML = html;
+    document.getElementById("question-container").appendChild(div);
+}
+
+/* -------------------------- ACTIVATE QUIZ FUNCTION -------------------------- */
+async function activateQuiz() {
+    try {
+        // Show loading state
+        const activateBtn = document.querySelector('.activate-btn');
+        const originalText = activateBtn.textContent;
+        activateBtn.textContent = 'Activating...';
+        activateBtn.disabled = true;
+
+        // Call your controller endpoint
+        const response = await fetch('/Quiz/activateQuiz', {
+            method: 'POST'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to activate quiz');
+        }
+
+        // Get the response text from controller
+        const responseText = await response.text();
+
+        // Show popup with the response
+        showPopup(responseText);
+
+        // Reset button
+        activateBtn.textContent = originalText;
+        activateBtn.disabled = false;
+
+    } catch (error) {
+        console.error('Error activating quiz:', error);
+        showPopup('Error activating quiz. Please try again.');
+
+        const activateBtn = document.querySelector('.activate-btn');
+        activateBtn.textContent = 'Activate Quiz';
+        activateBtn.disabled = false;
+    }
+}
+
+/* -------------------------- SHOW POPUP FUNCTION -------------------------- */
+function showPopup(message) {
+    // Create popup overlay if it doesn't exist
+    let popup = document.getElementById('quiz-popup');
+
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'quiz-popup';
+        popup.className = 'popup-overlay';
+        popup.innerHTML = `
+            <div class="popup-content">
+                <h3>Quiz Status</h3>
+                <p id="popup-message"></p>
+                <button class="popup-close-btn" onclick="closePopup()">Close</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
+    }
+
+    // Set the message
+    document.getElementById('popup-message').textContent = message;
+
+    // Show the popup
+    popup.classList.add('show');
+}
+
+/* -------------------------- CLOSE POPUP FUNCTION -------------------------- */
+function closePopup() {
+    const popup = document.getElementById('quiz-popup');
+    if (popup) {
+        popup.classList.remove('show');
+    }
+}
+
+    // AUTO ACTIVATE AFTER X MINUTES
+<!--    const activateAfterMinutes = 0.2; // <&#45;&#45; change time here-->
+
+<!--    setTimeout(() => {-->
+<!--        console.log("Auto activating quiz...");-->
+<!--        activateQuiz();  // calls your existing function-->
+<!--    }, activateAfterMinutes * 60 * 1000);-->
+
+</script>
+</body>
+</html>
