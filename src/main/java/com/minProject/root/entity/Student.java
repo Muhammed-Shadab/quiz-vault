@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Data
 @NoArgsConstructor
@@ -25,6 +27,5 @@ public class Student {
     private String division;
     private String rollNo;
     private String department;
-
-
+    private LocalDateTime lastHeartBeat;
 }

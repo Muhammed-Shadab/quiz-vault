@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Quizzes - QuizVault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-3px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header Section */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #9ca3af;
+            font-size: 1rem;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Quiz Table */
+        .quiz-table-container {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(20, 20, 20, 0.8);
+        }
+
+        th {
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        td {
+            padding: 1.2rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .quiz-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .quiz-id {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        .date-cell {
+            color: #d1d5db;
+        }
+
+        .date-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 0.2rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-expired {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .students-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .students-icon {
+            font-size: 1.2rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .quiz-table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            th, td {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <a href="#" class="logo">QuizVault</a>
+    <a th:href="@{/teacher/dashboard}" class="back-btn">
+        ← Back to Dashboard
+    </a>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">Recent Quizzes</h1>
+        <p class="page-subtitle">View and manage all your created quizzes</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search quizzes..." id="searchInput" onkeyup="filterQuizzes()">
+        </div>
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterByStatus('all')">All</button>
+            <button class="filter-btn" onclick="filterByStatus('active')">Active</button>
+            <button class="filter-btn" onclick="filterByStatus('expired')">Expired</button>
+        </div>
+    </div>
+
+    <!-- Quiz Table -->
+    <div class="quiz-table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Quiz Title</th>
+                <th>Created Date</th>
+                <th>Expires Date</th>
+                <th>Students</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="quizTableBody">
+            <!-- Loop through quizzes -->
+            <tr th:each="quiz : ${recentQuizes}"
+                th:attr="data-status=${quiz[4]} ? 'active' : 'expired'">
+                <!-- Quiz Title (quiz[0]) -->
+                <td>
+                    <div class="quiz-title" th:text="${quiz[0]}">Quiz Title</div>
+                </td>
+
+                <!-- Created Date (quiz[1]) -->
+                <td class="date-cell">
+                    <span th:text="${quiz[1]}">2024-01-15</span>
+                </td>
+
+                <!-- Expires Date (quiz[2]) -->
+                <td class="date-cell">
+                    <span th:text="${quiz[2]}">2024-02-15</span>
+                </td>
+
+                <!-- Students Count (quiz[3]) -->
+                <td>
+                    <div class="students-count">
+                        <span class="students-icon"></span>
+                        <span th:text="${quiz[3]}">0</span>
+                    </div>
+                </td>
+
+                <!-- Status (quiz[4] - boolean) -->
+                <td>
+                        <span th:if="${quiz[4]}" class="status-badge status-active">
+                            <span class="status-dot"></span>
+                            Active
+                        </span>
+                    <span th:unless="${quiz[4]}" class="status-badge status-expired">
+                            <span class="status-dot"></span>
+                            Expired
+                        </span>
+                </td>
+
+                <!-- Actions -->
+                <td>
+                    <button class="action-btn" onclick="viewDetails()">View Details</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Empty State (shown when no quizzes) -->
+        <div class="empty-state" th:if="${#lists.isEmpty(recentQuizes)}">
+            <div class="empty-icon">📝</div>
+            <h3 class="empty-title">No Quizzes Yet</h3>
+            <p class="empty-text">Create your first quiz to get started!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentFilter = 'all';
+
+    // Filter quizzes by status
+    function filterByStatus(status) {
+        currentFilter = status;
+
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Filter rows
+        const rows = document.querySelectorAll('#quizTableBody tr');
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (status === 'all') {
+                row.style.display = '';
+            } else if (status === 'active' && rowStatus === 'active') {
+                row.style.display = '';
+            } else if (status === 'expired' && rowStatus === 'expired') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Search/filter quizzes
+    function filterQuizzes() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('#quizTableBody tr');
+
+        rows.forEach(row => {
+            const title = row.querySelector('.quiz-title')?.textContent.toLowerCase();
+            if (title && title.includes(filter)) {
+                // Also check current status filter
+                const rowStatus = row.getAttribute('data-status');
+                if (currentFilter === 'all' || currentFilter === rowStatus) {
+                    row.style.display = '';
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // View quiz details
+    function viewDetails() {
+        alert('View quiz details functionality - to be implemented');
+    }
+</script>
+</body>
+</html>

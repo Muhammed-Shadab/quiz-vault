@@ -5,7 +5,456 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizVault - Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/teacherProfile.css}">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .profile-photo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Dropdown Menu */
+        .menu-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.4rem 0;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.7rem 1.2rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            gap: 0.7rem;
+            font-size: 0.9rem;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .menu-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .info-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            font-size: 1.3rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #d1d5db;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-control[readonly] {
+            background: rgba(0, 0, 0, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            background: #f0f0f0;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: #ffffff;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert.show {
+            display: flex;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-icon {
+            font-size: 1.3rem;
+        }
+
+        .alert-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .profile-stats {
+                justify-content: center;
+                gap: 1.5rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
 <!-- Top Navigation -->
@@ -18,42 +467,42 @@
             </svg>
             Menu
         </button>
-        <div class="profile-photo"></div>
+        <div class="profile-photo" th:text="${#strings.substring(teacherName, 0, 2).toUpperCase()}">PS</div>
 
         <!-- Dropdown Menu -->
         <div class="menu-dropdown" id="menuDropdown">
-            <a href="#" class="menu-item">
+            <a href="/teacher/dashboard" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                 </svg>
                 Home
             </a>
-            <a href="#" class="menu-item">
+            <a href="/teacher/rooms" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
                 </svg>
                 My Rooms
             </a>
-            <a href="#" class="menu-item">
+            <a href="/teacher/quiz/create" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                 </svg>
                 Create New Quiz
             </a>
-            <a href="#" class="menu-item">
+            <a href="/teacher/analytics" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
                 </svg>
                 Analytics
             </a>
-            <a href="#" class="menu-item">
+            <a href="/teacher/settings" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
                 </svg>
                 Settings
             </a>
-            <a href="#" class="menu-item">
+            <a href="/logout" class="menu-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
                 </svg>
@@ -65,23 +514,32 @@
 
 <!-- Main Content -->
 <div class="container">
+    <!-- Alert Messages -->
+    <div id="alertContainer"></div>
+
     <!-- Profile Header -->
     <div class="profile-header">
-        <div class="profile-avatar">PS</div>
+        <div class="profile-avatar" th:text="${#strings.substring(teacherName, 0, 2).toUpperCase()}">PS</div>
         <div class="profile-info">
-            <h1 class="profile-name"> <span th:text="${teacher.name}"></span></h1>
+            <h1 class="profile-name">
+                <span th:text="${teacherName}">Teacher Name</span>
+            </h1>
             <div class="profile-stats">
                 <div class="stat">
-                    <span class="stat-value">24</span>
+                    <span class="stat-value" th:text="${QuizesCount}">0</span>
                     <span class="stat-label">Quizzes Created</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-value">156</span>
+                    <span class="stat-value" th:text="${studentsCount}">0</span>
                     <span class="stat-label">Total Students</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-value">3.2k</span>
+                    <span class="stat-value" th:text="${quizAttemptCount}">0</span>
                     <span class="stat-label">Quiz Attempts</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" th:text="${roomsCount}">0</span>
+                    <span class="stat-label">Active Rooms</span>
                 </div>
             </div>
         </div>
@@ -91,122 +549,25 @@
     <div class="content-grid">
         <!-- Personal Information -->
         <div class="info-card">
-            <h3><span class="card-icon">👤</span> Personal Information</h3>
+            <h3>
+                <span class="card-icon">👤</span>
+                Personal Information
+            </h3>
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" class="form-control" value="Priya Sharma">
+                <input type="text" class="form-control" th:value="${teacherName}" readonly>
             </div>
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" class="form-control" value="priya.sharma@school.edu">
+                <input type="email" class="form-control" th:value="${teacherEmail}" readonly>
             </div>
             <div class="form-group">
                 <label>Phone Number</label>
-                <input type="tel" class="form-control" value="+91 98765 43210">
+                <input type="tel" class="form-control" th:value="${teacherPhoneNumber}" readonly>
             </div>
             <div class="form-group">
                 <label>Department</label>
-                <input type="text" class="form-control" value="Computer Science">
-            </div>
-            <div class="button-group">
-                <button class="btn btn-primary">Save Changes</button>
-                <button class="btn btn-secondary">Cancel</button>
-            </div>
-        </div>
-
-        <!-- Account Settings -->
-        <div class="info-card">
-            <h3><span class="card-icon">⚙️</span> Account Settings</h3>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" class="form-control" value="priya.sharma" disabled>
-            </div>
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" class="form-control" placeholder="••••••••">
-            </div>
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" class="form-control" placeholder="••••••••">
-            </div>
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" class="form-control" placeholder="••••••••">
-            </div>
-            <div class="button-group">
-                <button class="btn btn-primary">Update Password</button>
-                <button class="btn btn-danger">Delete Account</button>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="activity-section">
-            <h3><span class="card-icon">📊</span> Recent Activity</h3>
-            <div class="activity-list">
-                <div class="activity-item">
-                    <div class="activity-icon">📝</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Created "Quantum Mechanics" quiz</div>
-                        <div class="activity-time">2 hours ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon">👥</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Added 5 students to Physics room</div>
-                        <div class="activity-time">5 hours ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon">✅</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Graded 23 submissions</div>
-                        <div class="activity-time">1 day ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon">🎯</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Published "Algebra Basics" results</div>
-                        <div class="activity-time">2 days ago</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Achievements -->
-        <div class="info-card full-width-card">
-            <h3><span class="card-icon">🏆</span> Achievements</h3>
-            <div class="achievements-grid">
-                <div class="achievement-badge">
-                    <div class="achievement-icon">🎓</div>
-                    <div class="achievement-name">First Quiz</div>
-                    <div class="achievement-desc">Create your first quiz</div>
-                </div>
-                <div class="achievement-badge">
-                    <div class="achievement-icon">🔥</div>
-                    <div class="achievement-name">On Fire</div>
-                    <div class="achievement-desc">10 quizzes created</div>
-                </div>
-                <div class="achievement-badge">
-                    <div class="achievement-icon">👥</div>
-                    <div class="achievement-name">Popular Teacher</div>
-                    <div class="achievement-desc">100+ students</div>
-                </div>
-                <div class="achievement-badge">
-                    <div class="achievement-icon">⭐</div>
-                    <div class="achievement-name">Top Rated</div>
-                    <div class="achievement-desc">4.8+ rating</div>
-                </div>
-                <div class="achievement-badge">
-                    <div class="achievement-icon">💯</div>
-                    <div class="achievement-name">Perfect Score</div>
-                    <div class="achievement-desc">5 quizzes with 100%</div>
-                </div>
-                <div class="achievement-badge">
-                    <div class="achievement-icon">🎯</div>
-                    <div class="achievement-name">Consistency</div>
-                    <div class="achievement-desc">30 day streak</div>
-                </div>
+                <input type="text" class="form-control" value="Computer Science" readonly>
             </div>
         </div>
     </div>

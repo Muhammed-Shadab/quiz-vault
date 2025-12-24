@@ -6,27 +6,23 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
-public class QuizAttempt {
+public class Rooms {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long QAId;
+    private Long roomId;
 
     @ManyToOne
     @JoinColumn(name = "studentId")
     private Student studentId;
 
     @ManyToOne
-    @JoinColumn(name = "QuizId")
-    private Quizes quizId;
+    @JoinColumn(name = "teacherId")
+    private Teacher teacherId;
 
-    private int correctQuestionsCount;
-    private int score;
+    private String roomName;
 
-    private LocalDateTime start_time;
-    private LocalDateTime end_time;
-    private int tabSwitchingCount;
 
 }

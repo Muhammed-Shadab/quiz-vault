@@ -24,5 +24,35 @@
     </div>
     <button type="submit">Submit Quiz</button>
 </form>
+
+<script>
+<!--      const socket = new WebSocket("ws://localhost:8080/activity");-->
+
+<!--      socket.addEventListener("open", () => {-->
+<!--        setInterval(() => {-->
+<!--          socket.send("HEARTBEAT");-->
+<!--        }, 5000);-->
+<!--      });-->
+
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        fetch('/Quiz/tabSwitchingHappend')
+            .then(r => r.text())
+            .then(result => {
+                if (result.trim() === "yes") {
+                    fetch('/studentHomePage')
+                        .then(res => res.text())
+                        .then(html => {
+                            document.open();
+                            document.write(html);
+                            document.close();
+                        });
+                }
+            })
+            .catch(err => console.error('Error:', err));
+    }
+});
+</script>
 </body>
 </html>

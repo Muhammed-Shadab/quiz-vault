@@ -6,7 +6,6 @@
     <title>QuizVault - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/teacherHomePage.css}">
-
 </head>
 <body>
 <!-- Top Navigation -->
@@ -19,7 +18,7 @@
             </svg>
             Menu
         </button>
-        <a class="profile-photo" th:href="@{/teacherProfile}">PS</a>
+        <a class="profile-photo" th:href="@{teacher/teacherProfileDetails}">PS</a>
 
         <!-- Dropdown Menu -->
         <div class="menu-dropdown" id="menuDropdown">
@@ -85,7 +84,7 @@
                 <div class="stat-card">
                     <div class="stat-icon">📝</div>
                     <div class="stat-content">
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" th:text="${totalQuizes}"></div>
                         <div class="stat-label">Total Quizzes</div>
                     </div>
                 </div>
@@ -93,7 +92,7 @@
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
-                        <div class="stat-value">73</div>
+                        <div class="stat-value" th:text="${totalStudents}"></div>
                         <div class="stat-label">Total Students</div>
                     </div>
                 </div>
@@ -109,84 +108,68 @@
                 <div class="stat-card">
                     <div class="stat-icon">🏆</div>
                     <div class="stat-content">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Active Rooms</div>
+                        <div class="stat-value" th:text="${activeQuizesCount}"></div>
+                        <div class="stat-label">Active Quizes</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- My Rooms Section -->
+    <!-- My Rooms Section (Limited to 6) -->
     <section>
         <div class="section-header">
             <h3 class="section-title">My Rooms</h3>
-            <a href="#" class="view-all-btn">View All →</a>
+            <a th:href="@{/Rooms/showAllRooms}" class="view-all-btn">Show All Rooms →</a>
         </div>
 
         <div class="rooms-grid">
-            <div class="room-card">
+            <!-- Loop starts here - Limited to first 6 rooms -->
+            <form th:action="@{/Rooms/genreateRoomsPage/{roomTitle}(roomTitle=${room[0]})}"
+                  method="post"
+                  class="room-card"
+                  th:each="room, iterStat : ${RoomsRecord}"
+                  th:if="${iterStat.index < 5}">
                 <div class="room-header">
-                    <div class="room-icon">⚛️</div>
+                    <div class="room-icon">🏫</div>
                 </div>
-                <h4>Physics</h4>
-                <p class="room-info">25 students · 8 quizzes</p>
-                <button class="open-room-btn">Open Room</button>
-            </div>
 
-            <div class="room-card">
-                <div class="room-header">
-                    <div class="room-icon">🧪</div>
-                </div>
-                <h4>Chemistry</h4>
-                <p class="room-info">18 students · 5 quizzes</p>
-                <button class="open-room-btn">Open Room</button>
-            </div>
+                <!-- room[0] = room name -->
+                <h4 th:text="${room[0]}">Room Name</h4>
+                <input type="hidden" name="roomTitle" th:value="${room[0]}" />
 
-            <div class="room-card">
-                <div class="room-header">
-                    <div class="room-icon">📐</div>
-                </div>
-                <h4>Mathematics</h4>
-                <p class="room-info">30 students · 12 quizzes</p>
-                <button class="open-room-btn">Open Room</button>
-            </div>
+                <!-- room[1] = student count, room[2] = quiz count -->
+                <p class="room-info">
+                    <span th:text="${room[1]}">0</span> students ·
+                    <span th:text="${room[2]}">0</span> quizzes
+                </p>
+
+                <button class="open-room-btn" type="submit">Open Room</button>
+            </form>
+            <!-- Loop ends here -->
         </div>
     </section>
 
-    <!-- Recent Quizzes Section -->
     <section class="recent-quizzes">
         <div class="section-header">
             <h3 class="section-title">Recent Quizzes</h3>
-            <a href="#" class="view-all-btn">View All →</a>
+            <a th:href="@{teacher/showRecentQuizes}" class="view-all-btn">View All →</a>
         </div>
 
         <div class="quiz-list">
-            <div class="quiz-item">
-                <div class="quiz-name">Quantum Mechanics</div>
-                <div class="quiz-date">Jul 20, 2024</div>
-                <div class="quiz-students">25 students</div>
-            </div>
+            <div class="quiz-item"
+                 th:each="quiz, iter : ${recentQuizes}"
+                 th:if="${iter.index < 5}">
 
-            <div class="quiz-item">
-                <div class="quiz-name">Organic Chemistry</div>
-                <div class="quiz-date">Aug 5, 2024</div>
-                <div class="quiz-students">18 students</div>
-            </div>
-
-            <div class="quiz-item">
-                <div class="quiz-name">Algebra Basics</div>
-                <div class="quiz-date">Aug 12, 2024</div>
-                <div class="quiz-students">30 students</div>
-            </div>
-
-            <div class="quiz-item">
-                <div class="quiz-name">Thermodynamics</div>
-                <div class="quiz-date">Sep 1, 2024</div>
-                <div class="quiz-students">22 students</div>
+                <div class="quiz-name" th:text="${quiz[0]}">Quiz Title</div>
+                <div class="quiz-date" th:text="${quiz[1]}">Quiz Date</div>
+                <div class="quiz-students" th:text="${quiz[2] + ' students'}">0 students</div>
             </div>
         </div>
+
+
     </section>
+
 </div>
 
 <script>

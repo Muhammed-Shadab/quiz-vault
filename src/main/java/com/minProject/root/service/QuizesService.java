@@ -1,15 +1,12 @@
 package com.minProject.root.service;
 
 import com.minProject.root.Task.FileTextExtractor;
-import com.minProject.root.entity.Question;
-import com.minProject.root.entity.QuizAttempt;
-import com.minProject.root.entity.Quizes;
-import com.minProject.root.entity.Student;
-import com.minProject.root.repository.QuizAttemptRepository;
-import com.minProject.root.repository.QuizesRepository;
-import com.minProject.root.repository.StudentRepository;
+import com.minProject.root.entity.*;
+import com.minProject.root.repository.*;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.collections4.bag.SynchronizedSortedBag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -28,6 +25,13 @@ public class QuizesService {
     private QuizAttemptRepository QARepo;
     @Autowired
     private StudentRepository stnRepo;
+    @Autowired
+    private TeacherRepository teacherRepo;
+    @Autowired
+    private RoomsRepository roomRepo;
+    @Autowired
+    private pageControllerService pageControllerSrc;
+
 
     private final com.minProject.root.service.AIService aisrc;
     private final FileTextExtractor extractor;
@@ -39,7 +43,8 @@ public class QuizesService {
     }
 
     public List<Question> GenerateQuiz(String title, String description, int count, int duration,int marksOfEachQuestion,
-                                       String difficulty, String roomName, LocalDateTime expiresAt,MultipartFile file, HttpSession session) throws IOException {
+                                       String difficulty, String roomName, LocalDateTime expiresAt,int maxTabSwitches,MultipartFile file, HttpSession session) throws IOException {
+
 
         String text = extractor.extractText(file.getInputStream());
         List<Question> questions = new ArrayList<>(aisrc.generateQuiz(text,count,difficulty));
@@ -53,6 +58,7 @@ public class QuizesService {
         session.setAttribute("roomName",roomName);
         session.setAttribute("expiresAt",expiresAt);
         session.setAttribute("questions",questions);
+        session.setAttribute("maxTabSwitches",maxTabSwitches);
 
         return questions;
     }
@@ -84,6 +90,9 @@ public class QuizesService {
 
 
     public String activateQuiz(HttpSession session) {
+        String teacherEmail = (String) session.getAttribute("teacherEmail");
+        if(teacherEmail == null) return "welcome";
+
         String title = (String) session.getAttribute("title");
         String description = (String) session.getAttribute("description");
         int questionsCount = (int) session.getAttribute("questionsCount");
@@ -92,11 +101,14 @@ public class QuizesService {
         String difficulty = (String) session.getAttribute("difficulty");
         String roomName = (String) session.getAttribute("roomName");
         LocalDateTime expiresAt = (LocalDateTime) session.getAttribute("expiresAt");
+        int maxTabSwitches = (int) session.getAttribute("maxTabSwitches");
         List<Question> questions = (List<Question>) session.getAttribute("questions");
 
         if (questions == null || title == null) return "createQuiz";
 
         String url = "localhost:8080/Quiz/" + UUID.randomUUID();
+        Teacher t = teacherRepo.GetByEmail(teacherEmail);
+
 
         Quizes newQuiz = new Quizes();
         newQuiz.setTitle(title);
@@ -109,13 +121,18 @@ public class QuizesService {
         newQuiz.setQuestions(questions);
         newQuiz.setUrl(url);
         newQuiz.setExpireAt(expiresAt);
+        newQuiz.setTeacherId(t);
+        newQuiz.setCreatedAt(LocalDateTime.now());
+        newQuiz.setMaxTabSwitches(maxTabSwitches);
 
         quizRepo.save(newQuiz);
         return url;
     }
 
     public String renderQuizPage(String url,Model model,HttpSession session) {
-        url = "localhost:8080/Quiz/" + url;
+        String studentEmail = (String)session.getAttribute("StudentEmail");
+        if(studentEmail == null) return "welcomePage";
+        Student s = stnRepo.findByEmail(studentEmail);
         Quizes q = quizRepo.findByUrl(url);
         LocalDateTime now = LocalDateTime.now();
 
@@ -125,42 +142,96 @@ public class QuizesService {
             model.addAttribute("title",q.getTitle());
             model.addAttribute("id",q.getQuizId());
             session.setAttribute("quizId",q.getQuizId());
-            session.setAttribute("startTime",LocalDateTime.now());
-            return "quiz";
-        }else return null;
+
+            Teacher t = q.getTeacherId();
+            String roomName = q.getRoomName();
+
+            Rooms r = roomRepo.findByRoomAndStudent(roomName,s.getStudentId());
+            if(r == null) {
+                Rooms newRoom = new Rooms();
+                newRoom.setStudentId(s);
+                newRoom.setTeacherId(t);
+                newRoom.setRoomName(roomName);
+                roomRepo.save(newRoom);
+            }
+            QuizAttempt attempt = QARepo.isQuizAttemptedByStudent(q.getQuizId(),s.getStudentId());
+            if(attempt == null) {
+
+                QuizAttempt quiz = new QuizAttempt();
+                quiz.setQuizId(q);
+                quiz.setStart_time(LocalDateTime.now());
+                quiz.setStudentId(s);
+                quiz.setScore(0);
+                quiz.setEnd_time(null);
+                quiz.setCorrectQuestionsCount(0);
+                quiz.setTabSwitchingCount(0);
+                QuizAttempt qa = QARepo.save(quiz);
+                session.setAttribute("QuizAttemptId",qa.getQAId());
+                return "quiz";
+            }
+            else {
+                addAttemptedQuizData(attempt,model);
+                return "quizAlreadyAttempted";
+            }
+        }else return "The quiz Is expired";
     }
 
-    public int countMarks(Map<String, String> selectedOptions, HttpSession session) {
+    public String countMarks(Map<String, String> selectedOptions, HttpSession session,Model model) {
         Long QuizId = (Long) session.getAttribute("quizId");
         String studentEmail = (String) session.getAttribute("StudentEmail");
-        if(QuizId == null || studentEmail == null) return -1;
+        if(QuizId == null || studentEmail == null) return "welcomePage";
+        Student s = stnRepo.findByEmail(studentEmail);
 
-        Optional<Quizes> optionalQuiz = quizRepo.findById(QuizId);
-        Quizes q = optionalQuiz.get();
+        QuizAttempt attempt = QARepo.isQuizAttemptedByStudent(QuizId,s.getStudentId());
+        if(attempt.getEnd_time() == null) {
+            Optional<Quizes> optionalQuiz = quizRepo.findById(QuizId);
+            Quizes q = optionalQuiz.get();
 
-        Optional<Student> optionalStudent = stnRepo.findByEmail(studentEmail);
-        Student s = optionalStudent.get();
+            List<Question> questions = q.getQuestions();
 
-        List<Question> questions = q.getQuestions();
-
-        int score = 0;
-        for(String key: selectedOptions.keySet()) {
-            int idx = Integer.parseInt(key) - 1;
-            Question temp = questions.get(idx);
-            if(selectedOptions.get(key).equals(temp.getAnswer())) score++;
+            int score = 0;
+            for (String key : selectedOptions.keySet()) {
+                int idx = Integer.parseInt(key) - 1;
+                Question temp = questions.get(idx);
+                if (selectedOptions.get(key).equals(temp.getAnswer())) score++;
+            }
+            Long QAId = (Long) session.getAttribute("QuizAttemptId");
+            QuizAttempt qa = QARepo.FindById(QAId);
+            if (qa.getTabSwitchingCount() < q.getMaxTabSwitches()) {
+                attempt.setCorrectQuestionsCount(score);
+                attempt.setScore(score * q.getMarksOfEachQuestion());
+            }
+            attempt.setEnd_time(LocalDateTime.now());
+            QARepo.save(attempt);
         }
-        QuizAttempt newRecord = new QuizAttempt();
-        newRecord.setScore(score*q.getMarksOfEachQuestion());
-        newRecord.setCorrectQuestionsCount(score);
-        newRecord.setEnd_time(LocalDateTime.now());
-        newRecord.setStart_time(((LocalDateTime)session.getAttribute("startTime")));
-        newRecord.setQuiz(q);
-        newRecord.setStudent(s);
+        addAttemptedQuizData(attempt, model);
+        return "quizAlreadyAttempted";
 
+    }
 
-        QARepo.save(newRecord);
+    private void addAttemptedQuizData(QuizAttempt attempt, Model model) {
+        Quizes q = attempt.getQuizId();
+        model.addAttribute("quizTitle",q.getTitle());
+        int score = ((attempt.getCorrectQuestionsCount()*100)/q.getQuestionsCount());
+        model.addAttribute("score",score);
+        model.addAttribute("correctAnswers",attempt.getCorrectQuestionsCount());
+        model.addAttribute("totalQuestions",q.getQuestionsCount());
+        model.addAttribute("attemptedDate",attempt.getEnd_time().toLocalDate());
 
-        return score*q.getMarksOfEachQuestion();
+    }
+
+    public String tabSwitchingDetected(HttpSession session, Model model) {
+        String studentEmail = (String) session.getAttribute("StudentEmail");
+        Student s = stnRepo.findByEmail(studentEmail);
+        Long quizId = (Long) session.getAttribute("QuizAttemptId");
+        QARepo.updateTabSwitching(quizId);
+        Integer tabSwitchingCount = QARepo.findTabSwitchingCount(quizId);
+
+        if(tabSwitchingCount >= 3){
+            QARepo.setscore(0,0,LocalDateTime.now(),quizId);
+            return "yes";
+        }
+        return "no";
 
     }
 }

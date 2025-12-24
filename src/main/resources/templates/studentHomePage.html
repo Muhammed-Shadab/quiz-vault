@@ -10,67 +10,47 @@
 <div class="container">
     <header>
         <div class="logo">QuizWorld</div>
-        <div class="search-bar">
-            <span>🔍</span>
-            <input type="text" placeholder="Search">
-        </div>
         <div class="header-actions">
-            <button class="icon-btn">🔔</button>
-            <button class="icon-btn">💬</button>
             <button class="logout-btn">
                 <span>⚙️</span>
-                <span>Logout</span>
             </button>
         </div>
     </header>
 
     <div class="main-layout">
-        <aside class="sidebar">
-            <a href="#" class="nav-item active">
-                <span>Home</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>My Rooms</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>Active Quizzes</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>Quiz History</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>Performance</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>Settings</span>
-            </a>
-            <a href="#" class="nav-item">
-                <span>Back</span>
-            </a>
-        </aside>
-
         <main class="main-content">
             <div class="welcome-section">
-                <h1>Welcome back, Shadab 👋</h1>
+                <h1>Welcome <span th:text="${studentName}"></span> 👋</h1>
                 <p>Ready to test your skills today?</p>
             </div>
 
             <div class="content-grid">
                 <div>
                     <h2 class="section-title">Active Quizzes</h2>
+
                     <div class="quizzes-grid">
-                        <div class="quiz-card">
-                            <h3>Physics</h3>
-                            <div class="subtitle">Chapter 3: Thermodynamics</div>
-                            <div class="timing">Starts in 2 days</div>
-                            <button class="start-quiz-btn">Start Quiz</button>
+                        <!-- Loop through first 4 quizzes only -->
+                        <div class="quiz-card" th:each="quiz, iterStat : ${notifyQuizes}" th:if="${iterStat.index < 4}">
+                            <form th:action="@{/Quiz/{url}(url=${quiz[3]})}" method="get">
+                                <h3 th:text="${quiz[0]}">Title</h3>
+
+                                <!-- quiz[1] = Quiz name -->
+                                <div class="subtitle" th:text="${quiz[1]}">Quiz Name</div>
+
+                                <!-- quiz[2] = Ending time -->
+                                <div class="timing" th:text="${quiz[2]}">Timing</div>
+
+                                <button class="start-quiz-btn" type="submit">Start Quiz</button>
+                            </form>
                         </div>
-                        <div class="quiz-card">
-                            <h3>Chemistry</h3>
-                            <div class="subtitle">Atomic Structure</div>
-                            <div class="timing">Ends in 3 hrs</div>
-                            <button class="start-quiz-btn">Start Quiz</button>
-                        </div>
+                    </div>
+
+                    <!-- Show More Button for Quizzes -->
+                    <div th:if="${notifyQuizes != null and notifyQuizes.size() > 4}" style="margin-top: 20px;">
+                        <a href="/student/getAttemptQuizData" class="show-more-btn" style="text-decoration : none,color: black;">
+                            Show More Quizzes
+                            <span>→</span>
+                        </a>
                     </div>
                 </div>
 
@@ -98,41 +78,83 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>Chapter 1.Motion</td>
-                                <td><span class="score-badge score-high">85%</span></td>
-                                <td>Sep 15, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>Algebra</td>
-                                <td><span class="score-badge score-perfect">100%</span></td>
-                                <td>Sep 10, 2024</td>
-                            </tr>
-                            <tr>
-                                <td>Indials Geography</td>
-                                <td><span class="score-badge score-high">40%</span></td>
-                                <td>Sep 5, 2024</td>
+                            <!-- Show only first 5 results -->
+                            <tr th:each="record, iterStat : ${performance}" th:if="${iterStat.index < 5}">
+                                <td th:text="${record[0]}">Quiz Title</td>
+                                <td>
+                                    <span th:class="${#strings.replace(record[1], '%', '') < '40'} ? 'score-badge score-low' :
+                                                     (${#strings.replace(record[1], '%', '') < '65'} ? 'score-badge score-medium' :
+                                                     (${#strings.replace(record[1], '%', '') < '90'} ? 'score-badge score-high' : 'score-badge score-perfect'))"
+                                          th:text="${record[1]}">Score</span>
+                                </td>
+                                <td th:text="${record[2]}">Date</td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Show More Button for Results -->
+                    <div th:if="${performance != null and performance.size() > 5}" style="margin-top: 20px;color:white;text-decoration: none">
+                        <a href="/student/quizResults" class="show-more-btn">
+                            View All Results
+                            <span>→</span>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="notifications-section">
-                    <h2 class="section-title">Notifications</h2>
-                    <div class="notification-item">
-                        <div class="notification-title">Quiz on Algebra</div>
-                        <div class="notification-detail">starts at 4:00 PM</div>
+                <div class="announcements-section">
+                    <h2 class="section-title">📢 Announcements</h2>
+
+                    <!-- Check if announcements exist -->
+                    <div th:if="${announcementsOfStudents != null and !announcementsOfStudents.isEmpty()}">
+                        <div class="announcements-list">
+                            <!-- Loop through first 3 announcements only -->
+                            <div class="announcement-card"
+                                 th:each="announcement, iterStat : ${announcementsOfStudents}"
+                                 th:if="${iterStat.index < 3}">
+
+                                <!-- Left side: Title and Message -->
+                                <div class="announcement-left">
+                                    <div class="announcement-title" th:text="${announcement[0]}">
+                                        Announcement Title
+                                    </div>
+                                    <div class="announcement-message"
+                                         th:title="${announcement[1]}"
+                                         th:text="${#strings.length(announcement[1]) > 50 ? #strings.substring(announcement[1], 0, 50) + '...' : announcement[1]}">
+                                        This is the announcement message that will be truncated if it's too long...
+                                    </div>
+                                </div>
+
+                                <!-- Right side: Teacher and Date -->
+                                <div class="announcement-right">
+                                    <div class="announcement-teacher" th:text="${announcement[3]}">
+                                        Teacher Name
+                                    </div>
+                                    <div class="announcement-date" th:text="${announcement[2]}">
+                                        2025-12-13
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Read More Button -->
+                        <a class="read-more-btn" href="/student/AllAnnouncement">
+                            Read More
+                            <span>→</span>
+                        </a>
                     </div>
-                    <div class="notification-item">
-                        <div class="notification-title">New message from Prof_Sharma</div>
-                        <div class="notification-detail">Sep 14, 2024</div>
+
+                    <!-- No announcements message -->
+                    <div th:if="${announcementsOfStudents == null or announcementsOfStudents.isEmpty()}" class="no-announcements">
+                        <div class="no-announcements-icon">📭</div>
+                        <div class="no-announcements-text">No announcements yet</div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 </div>
+<script th:src="@{/script/polling.js}"></script>
 
 <script>
     // Navigation active state
@@ -154,19 +176,103 @@
         });
     });
 
-    // Start Quiz button handlers
-    document.querySelectorAll('.start-quiz-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            alert('Starting quiz...');
-            // For Thymeleaf: th:onclick="|startQuiz(${quiz.id})|"
+    // Search functionality
+    const searchInput = document.querySelector('.search-bar input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching for:', searchTerm);
+
+            // Search in quiz cards
+            document.querySelectorAll('.quiz-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Search in announcements
+            document.querySelectorAll('.announcement-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Announcement card click effect
+    document.querySelectorAll('.announcement-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Add a visual feedback when clicked
+            this.style.background = 'rgba(79, 93, 201, 0.15)';
+            setTimeout(() => {
+                this.style.background = 'rgba(255, 255, 255, 0.05)';
+            }, 300);
         });
     });
 
-    // Search functionality placeholder
-    document.querySelector('.search-bar input').addEventListener('input', function(e) {
-        console.log('Searching for:', e.target.value);
-        // For Thymeleaf: implement search logic
+    // Icon button handlers
+    document.querySelectorAll('.icon-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const icon = this.textContent.trim();
+            if (icon === '🔔') {
+                console.log('Notifications clicked');
+                // Handle notifications
+            } else if (icon === '💬') {
+                console.log('Messages clicked');
+                // Handle messages
+            }
+        });
     });
+
+    // Logout button handler
+    document.querySelector('.logout-btn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+            console.log('Logging out...');
+            // Handle logout - redirect to login page
+            // window.location.href = '/logout';
+        }
+    });
+
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchBar = document.querySelector('.search-bar input');
+            if (searchBar) searchBar.focus();
+        }
+
+        // Escape to clear search
+        if (e.key === 'Escape') {
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }
+    });
+
+    console.log('Student Dashboard loaded successfully');
 </script>
 </body>
 </html>

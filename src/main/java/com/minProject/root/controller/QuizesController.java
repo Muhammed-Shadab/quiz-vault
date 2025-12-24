@@ -2,8 +2,10 @@ package com.minProject.root.controller;
 
 import com.minProject.root.Task.FileTextExtractor;
 import com.minProject.root.entity.Question;
+import com.minProject.root.entity.QuizAttempt;
 import com.minProject.root.service.AIService;
 import com.minProject.root.service.QuizesService;
+import com.minProject.root.service.pageControllerService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,11 +43,12 @@ public class QuizesController {
                 @RequestParam("difficulty") String difficulty,
                 @RequestParam("roomName") String roomName,
                 @RequestParam("ExpireAt") LocalDateTime expireAt,
+                @RequestParam("maxTabSwitches") int maxTabSwitches,
                 @RequestParam("file") MultipartFile file,
                 HttpSession session,
                 Model model) throws IOException {
 
-                List<Question> questions = quizsrc.GenerateQuiz(title,description,count,duration,marksOfEachQuestion,difficulty,roomName,expireAt,file,session);
+                List<Question> questions = quizsrc.GenerateQuiz(title,description,count,duration,marksOfEachQuestion,difficulty,roomName,expireAt,maxTabSwitches,file,session);
                 model.addAttribute("questions",questions);
                 return "generatedQuiz";
 
@@ -81,18 +84,19 @@ public class QuizesController {
 
         @GetMapping("/{url}")
         public String renderQuizPage(@PathVariable String url,Model model,HttpSession session) {
-            if(session.getAttribute("StudentEmail") == null) return "welcomePage";
-            String response = quizsrc.renderQuizPage(url,model,session);
-            if(response != null) return "quiz";
-            else return "The quiz is expired";
+            url = "localhost:8080/Quiz/" + url;
+            return quizsrc.renderQuizPage(url,model,session);
         }
 
         @PostMapping("/countMarks")
-        public String countMarks(@RequestParam Map<String,String> selectedOptions,HttpSession session) {
-            int marks = quizsrc.countMarks(selectedOptions,session);
-            if(marks == -1) return "welcomePage";
-            return "succesfully";
+        public String countMarks(@RequestParam Map<String,String> selectedOptions,HttpSession session,Model model) {
+            return quizsrc.countMarks(selectedOptions, session,model);
         }
 
+        @ResponseBody
+        @GetMapping("/tabSwitchingHappend")
+        public String tabSwitchingDetected(HttpSession session,Model model) {
+            return quizsrc.tabSwitchingDetected(session,model);
+        }
 }
 

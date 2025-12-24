@@ -23,6 +23,12 @@ public class Quizes {
     private String difficulty;
     private String roomName;
     private LocalDateTime expireAt;
+    private LocalDateTime createdAt;
+    private int maxTabSwitches;
+
+    @ManyToOne
+    @JoinColumn(name = "teacherId")
+    private Teacher teacherId;
 
     @ElementCollection(fetch = FetchType.LAZY)
     private List<Question> questions;

@@ -23,7 +23,7 @@
         </div>
 
         <!-- FIXED: enctype added, file name added, difficulty name added -->
-        <form th:action="@{/Quiz/generateQuiz}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/Rooms/generateQuiz/{roomTitle}(roomTitle=${roomTitle})}" method="post" enctype="multipart/form-data">
 
             <!-- BASIC INFO -->
             <div class="form-card">
@@ -96,31 +96,10 @@
                             <option value="hard">Hard</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Max Tab Switches Allowed *</label>
-                        <input
-                                type="number"
-                                name="maxTabSwitches"
-                                id="maxTabSwitches"
-                                class="form-input"
-                                placeholder="e.g. 3"
-                                min="0"
-                                value="3"
-                                required
-                        >
-                        <small style="color:#666;">
-                            If user switches tabs ≥ this number, quiz will be auto-submitted or scored 0
-                        </small>
-                    </div>
 
                     <div class="form-group">
                         <label class="form-label">Expires At *</label>
                         <input name="ExpireAt" type="datetime-local" id="expiresAt" class="form-input" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Room Name</label>
-                        <input name="roomName" type="text" class="form-input" required>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizVault - Room Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-title h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .send-announcement-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+
+        .send-announcement-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #555;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #fff;
+        }
+
+        .tab.active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        /* Search and Filter Bar */
+        .search-filter-bar {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        select {
+            padding: 10px 15px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        /* Table */
+        .table-container {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-section {
+            display: none;
+        }
+
+        .table-section.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #2a2a2a;
+        }
+
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #2a2a2a;
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background: #252525;
+        }
+
+        td {
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .student-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .student-email {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .quiz-title {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .score.high {
+            color: #22c55e;
+        }
+
+        .score.medium {
+            color: #eab308;
+        }
+
+        .score.low {
+            color: #ef4444;
+        }
+
+        .action-dots {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+
+        .action-dots:hover {
+            color: #fff;
+        }
+
+        .date-text {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .form-input.error {
+            border-color: #ef4444;
+        }
+
+        .form-input::placeholder {
+            color: #666;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-btn-primary {
+            background: #fff;
+            color: #000;
+        }
+
+        .modal-btn-primary:hover:not(:disabled) {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-secondary {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #3a3a3a;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Success Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1a1a1a;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 16px 24px;
+            color: #22c55e;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideInRight 0.3s, slideOutRight 0.3s 2.7s;
+            display: none;
+        }
+
+        .toast.active {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header Section -->
+    <div class="header">
+        <div class="header-top">
+            <div class="header-title">
+                <h1 th:text="${roomTitle}">Room Title</h1>
+            </div>
+            <button class="send-announcement-btn" onclick="sendAnnouncement()">
+                📢 Send Announcement
+            </button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalStudents}">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalQuizes}">0</div>
+                <div class="stat-label">Total Quizzes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-buttons">
+            <form th:action="@{/generateQuiz/{roomTitle}(roomTitle=${roomTitle})}" method="get">
+                <button class="btn btn-primary" type="submit">
+                    🤖 Generate AI Quiz
+                </button>
+            </form>
+
+            <button class="btn" onclick="addQuiz()">
+                ➕ Add Quiz
+            </button>
+            <button class="btn" onclick="addStudent()">
+                👤 Add Student
+            </button>
+        </div>
+        <div class="action-buttons">
+            <button class="btn" onclick="exportData()">
+                📊 Export
+            </button>
+            <button class="btn" onclick="openSettings()">
+                ⚙️ Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="students">
+            Students (<span th:text="${totalStudents}">0</span>)
+        </button>
+        <button class="tab" data-tab="quizzes">
+            Quizzes (<span th:text="${totalQuizes}">0</span>)
+        </button>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search..." id="searchInput">
+        </div>
+        <select id="statusFilter">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+        </select>
+        <select id="sortBy">
+            <option value="name">Sort by Name</option>
+            <option value="score">Sort by Score</option>
+        </select>
+    </div>
+
+    <!-- Tables Container -->
+    <div class="table-container">
+
+        <!-- Students Table -->
+        <div class="table-section active" id="students-table">
+            <table>
+                <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Avg Score</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="std : ${studentsRecords}">
+                    <!-- Student -->
+                    <td>
+                        <div class="student-info">
+                            <div class="student-avatar" th:text="${std[0].substring(0,1)}">S</div>
+                            <div class="student-details">
+                                <div class="student-name" th:text="${std[0]}">Name</div>
+                                <div class="student-email" th:text="${std[1]}">email@example.com</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        <span th:class="${std[4]} ? 'status-badge status-active' : 'status-badge status-inactive'">
+                            <span class="status-dot"></span>
+                            <span th:text="${std[4]} ? 'Active' : 'Inactive'"></span>
+                        </span>
+                    </td>
+
+
+                    <!-- Progress -->
+                    <td>
+                        <div class="progress-text" th:text="${std[2] + ' / ' + totalQuizes + ' completed'}">
+                            0/12 completed
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" th:style="|width: ${(std[2] * 100) / totalQuizes}%;|"></div>
+                        </div>
+                    </td>
+
+                    <!-- Average Score -->
+                    <td>
+                        <span class="score"
+                              th:text="${(std[3] * 100) + '%'}"
+                              th:classappend="${std[3] >= 0.75 ? ' high' : (std[3] >= 0.50 ? ' medium' : ' low')}">
+                            75%
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <button class="action-dots" onclick="showActionMenu(this)">⋮</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Quizzes Table -->
+        <div class="table-section" id="quizzes-table">
+            <table>
+                <thead>
+                <tr>
+                    <th>Quiz Title</th>
+                    <th>Created At</th>
+                    <th>Expires At</th>
+                    <th>Attempts</th>
+                    <th>Avg Score</th>
+                    <th>Completion</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="quiz : ${quizesRecords}">
+
+                    <!-- Quiz Title -->
+                    <td>
+                        <div class="quiz-title" th:text="${quiz[0]}">Quiz Title</div>
+                    </td>
+
+                    <!-- Created At -->
+                    <td>
+                        <div class="date-text" th:text="${quiz[1]}">2025-01-01</div>
+                    </td>
+
+                    <!-- Expires At -->
+                    <td>
+                        <div class="date-text" th:text="${quiz[2]}">2025-12-31</div>
+                    </td>
+
+                    <!-- Attempts -->
+                    <td>
+                        <div>
+                            <span th:text="${quiz[3] + ' / ' + totalStudents}">0 / 42</span>
+                            <div class="student-email">students</div>
+                        </div>
+                    </td>
+
+                    <!-- Average Score -->
+                    <td>
+                        <span class="score"
+                              th:text="${(quiz[4] * 100) + '%'}"
+                              th:classappend="${quiz[4] >= 0.75 ? ' high' : (quiz[4] >= 0.50 ? ' medium' : ' low')}">
+                            75%
+                        </span>
+                    </td>
+
+                    <!-- Completion -->
+                    <td>
+                        <div class="progress-text" th:text="${((quiz[3] * 100) / totalStudents) + '% completed'}">
+                            50% completed
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" th:style="|width: ${(quiz[3] * 100) / totalStudents}%;|"></div>
+                        </div>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <button class="action-dots" onclick="showQuizActionMenu(this)">⋮</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal" id="addStudentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add Student</h2>
+            <button class="close-btn" onclick="closeAddStudentModal()">&times;</button>
+        </div>
+
+        <form id="addStudentForm">
+            <div class="form-group">
+                <label class="form-label" for="studentEmail">Student Email</label>
+                <input
+                        type="email"
+                        id="studentEmail"
+                        name="email"
+                        class="form-input"
+                        placeholder="student@example.com"
+                        required
+                >
+                <div class="error-message" id="emailError">Please enter a valid email address</div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddStudentModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="modal-btn modal-btn-primary" id="submitBtn">
+                    Add Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Send Announcement Modal -->
+<div class="modal" id="announcementModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">📢 Send Announcement</h2>
+            <button class="close-btn" onclick="closeAnnouncementModal()">&times;</button>
+        </div>
+
+        <form id="announcementForm">
+            <div class="form-group">
+                <label class="form-label" for="announcementTitle">Announcement Title</label>
+                <input
+                        type="text"
+                        id="announcementTitle"
+                        name="title"
+                        class="form-input"
+                        placeholder="Enter announcement title"
+                        required
+                >
+                <div class="error-message" id="titleError">Please enter a title</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="announcementMessage">Message</label>
+                <textarea
+                        id="announcementMessage"
+                        name="message"
+                        class="form-input"
+                        placeholder="Enter your announcement message"
+                        rows="5"
+                        required
+                ></textarea>
+                <div class="error-message" id="messageError">Please enter a message</div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAnnouncementModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="modal-btn modal-btn-primary" id="announcementSubmitBtn">
+                    Send Announcement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Toast for Student -->
+<div class="toast" id="successToast">
+    ✓ Student added successfully!
+</div>
+
+<!-- Success Toast for Announcement -->
+<div class="toast" id="announcementSuccessToast">
+    ✓ Announcement is sent Successfully to the room Students!!
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Get room title from Thymeleaf
+    const roomTitle = /*[[${roomTitle}]]*/ 'DefaultRoom';
+    /*]]>*/
+
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.tab');
+    const tableSections = document.querySelectorAll('.table-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            const tabName = this.getAttribute('data-tab');
+
+            tableSections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const selectedTable = document.getElementById(tabName + '-table');
+            if (selectedTable) {
+                selectedTable.classList.add('active');
+            }
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const activeTable = document.querySelector('.table-section.active tbody');
+        const rows = activeTable.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Filter functionality
+    const filterSelect = document.getElementById('statusFilter');
+    filterSelect.addEventListener('change', function() {
+        const filterValue = this.value.toLowerCase();
+        const activeTable = document.querySelector('.table-section.active tbody');
+        const rows = activeTable.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            if (filterValue === 'all') {
+                row.style.display = '';
+            } else {
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    const badgeText = statusBadge.textContent.toLowerCase().trim();
+                    if (badgeText.includes(filterValue)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+
+    // Sort functionality
+    const sortSelect = document.getElementById('sortBy');
+    sortSelect.addEventListener('change', function() {
+        console.log('Sorting by:', this.value);
+    });
+
+    // Button functions
+    function sendAnnouncement() {
+        document.getElementById('announcementModal').classList.add('active');
+        document.getElementById('announcementTitle').focus();
+        // Clear any previous errors
+        document.getElementById('titleError').classList.remove('active');
+        document.getElementById('messageError').classList.remove('active');
+        document.getElementById('announcementTitle').classList.remove('error');
+        document.getElementById('announcementMessage').classList.remove('error');
+    }
+
+    function closeAnnouncementModal() {
+        document.getElementById('announcementModal').classList.remove('active');
+        document.getElementById('announcementForm').reset();
+        document.getElementById('titleError').classList.remove('active');
+        document.getElementById('messageError').classList.remove('active');
+        document.getElementById('announcementTitle').classList.remove('error');
+        document.getElementById('announcementMessage').classList.remove('error');
+    }
+
+    function addQuiz() {
+        alert('Opening Add Quiz form...');
+    }
+
+    function addStudent() {
+        document.getElementById('addStudentModal').classList.add('active');
+        document.getElementById('studentEmail').focus();
+        // Clear any previous errors
+        document.getElementById('emailError').classList.remove('active');
+        document.getElementById('studentEmail').classList.remove('error');
+    }
+
+    function closeAddStudentModal() {
+        document.getElementById('addStudentModal').classList.remove('active');
+        document.getElementById('addStudentForm').reset();
+        document.getElementById('emailError').classList.remove('active');
+        document.getElementById('studentEmail').classList.remove('error');
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const addStudentModal = document.getElementById('addStudentModal');
+        const announcementModal = document.getElementById('announcementModal');
+
+        if (event.target === addStudentModal) {
+            closeAddStudentModal();
+        }
+
+        if (event.target === announcementModal) {
+            closeAnnouncementModal();
+        }
+    });
+
+    // Form submission with AJAX - Add Student
+    document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const emailInput = document.getElementById('studentEmail');
+        const emailError = document.getElementById('emailError');
+        const submitBtn = document.getElementById('submitBtn');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Client-side validation
+        if (!emailPattern.test(emailInput.value)) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailError.classList.add('active');
+            emailInput.classList.add('error');
+            emailInput.focus();
+            return;
+        }
+
+        emailError.classList.remove('active');
+        emailInput.classList.remove('error');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+
+        const formData = new FormData();
+        formData.append('email', emailInput.value);
+
+        fetch(`/Rooms/${roomTitle}/addStudent`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Student';
+
+            if(data.success) {
+                closeAddStudentModal();
+
+                const toast = document.getElementById('successToast');
+                toast.classList.add('active');
+                setTimeout(() => {
+                    toast.classList.remove('active');
+                }, 3000);
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+
+            } else {
+                emailError.textContent = data.error || 'An error occurred. Please try again.';
+                emailError.classList.add('active');
+                emailInput.classList.add('error');
+                emailInput.focus();
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Student';
+            emailError.textContent = 'Network error. Please check your connection and try again.';
+            emailError.classList.add('active');
+            emailInput.classList.add('error');
+        });
+    });
+
+    // Form submission with AJAX - Send Announcement
+    document.getElementById('announcementForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const titleInput = document.getElementById('announcementTitle');
+        const messageInput = document.getElementById('announcementMessage');
+        const titleError = document.getElementById('titleError');
+        const messageError = document.getElementById('messageError');
+        const submitBtn = document.getElementById('announcementSubmitBtn');
+
+        // Client-side validation
+        let hasError = false;
+
+        if (!titleInput.value.trim()) {
+            titleError.textContent = 'Please enter a title';
+            titleError.classList.add('active');
+            titleInput.classList.add('error');
+            hasError = true;
+        } else {
+            titleError.classList.remove('active');
+            titleInput.classList.remove('error');
+        }
+
+        if (!messageInput.value.trim()) {
+            messageError.textContent = 'Please enter a message';
+            messageError.classList.add('active');
+            messageInput.classList.add('error');
+            hasError = true;
+        } else {
+            messageError.classList.remove('active');
+            messageInput.classList.remove('error');
+        }
+
+        if (hasError) {
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        const formData = new FormData();
+        formData.append('title', titleInput.value.trim());
+        formData.append('message', messageInput.value.trim());
+
+        fetch(`/ann/SendAnnouncement/${roomTitle}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Announcement';
+
+            if(data.success) {
+                closeAnnouncementModal();
+
+                const toast = document.getElementById('announcementSuccessToast');
+                toast.classList.add('active');
+                setTimeout(() => {
+                    toast.classList.remove('active');
+                }, 3000);
+
+            } else {
+                messageError.textContent = data.error || 'An error occurred. Please try again.';
+                messageError.classList.add('active');
+                messageInput.classList.add('error');
+                messageInput.focus();
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Announcement';
+            messageError.textContent = 'Network error. Please check your connection and try again.';
+            messageError.classList.add('active');
+            messageInput.classList.add('error');
+        });
+    });
+
+    function exportData() {
+        alert('Exporting data...');
+    }
+
+    function openSettings() {
+        alert('Opening room settings...');
+    }
+
+    function showActionMenu(button) {
+        alert('Student Options:\n• View Details\n• Remove');
+    }
+
+    function showQuizActionMenu(button) {
+        alert('Quiz Options:\n• Edit\n• Delete\n• View Results');
+    }
+
+</script>
+
+</body>
+</html>

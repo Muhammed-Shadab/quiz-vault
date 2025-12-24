@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizWorld - Announcements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(79, 93, 201, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(79, 93, 201, 0.2);
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: rgba(79, 93, 201, 0.2);
+            border: 1px solid rgba(79, 93, 201, 0.4);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(79, 93, 201, 0.3);
+            border-color: rgba(79, 93, 201, 0.6);
+            transform: translateX(-4px);
+        }
+
+        /* Announcements Grid */
+        .announcements-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .announcement-item {
+            background: linear-gradient(135deg, rgba(107, 127, 219, 0.08) 0%, rgba(79, 93, 201, 0.03) 100%);
+            border: 1px solid rgba(107, 127, 219, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .announcement-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #6b7fdb 0%, #4f5dc9 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .announcement-item:hover::before {
+            opacity: 1;
+        }
+
+        .announcement-item:hover {
+            background: linear-gradient(135deg, rgba(107, 127, 219, 0.12) 0%, rgba(79, 93, 201, 0.06) 100%);
+            border-color: rgba(107, 127, 219, 0.4);
+            transform: translateX(4px);
+            box-shadow: 0 8px 32px rgba(79, 93, 201, 0.25);
+        }
+
+        .announcement-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 16px;
+            align-items: start;
+        }
+
+        .announcement-main {
+            min-width: 0;
+        }
+
+        .announcement-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .announcement-message {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .announcement-teacher-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .announcement-teacher {
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, rgba(107, 127, 219, 0.3) 0%, rgba(79, 93, 201, 0.3) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(107, 127, 219, 0.4);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .announcement-teacher::before {
+            content: "👨‍🏫";
+            font-size: 16px;
+        }
+
+        .announcement-date-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .announcement-date {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .announcement-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .view-full-btn {
+            background: rgba(79, 93, 201, 0.15);
+            border: 1px solid rgba(79, 93, 201, 0.3);
+            color: #6b7fdb;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-full-btn:hover {
+            background: rgba(79, 93, 201, 0.25);
+            border-color: rgba(79, 93, 201, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 93, 201, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+            border: 2px solid rgba(79, 93, 201, 0.4);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(79, 93, 201, 0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(79, 93, 201, 0.5);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 93, 201, 0.7);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(79, 93, 201, 0.2);
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.3;
+            flex: 1;
+            word-wrap: break-word;
+        }
+
+        .close-btn {
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 59, 48, 0.3);
+            border-color: rgba(255, 59, 48, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .modal-teacher {
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, rgba(107, 127, 219, 0.3) 0%, rgba(79, 93, 201, 0.3) 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(107, 127, 219, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-teacher::before {
+            content: "👨‍🏫";
+            font-size: 16px;
+        }
+
+        .modal-date {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            padding: 8px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-date::before {
+            content: "📅";
+            font-size: 14px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid rgba(107, 127, 219, 0.6);
+        }
+
+        /* No Announcements */
+        .no-announcements {
+            text-align: center;
+            padding: 100px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .no-announcements-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            opacity: 0.3;
+            filter: grayscale(1);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .no-announcements-text {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .announcement-content {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .announcement-teacher-col,
+            .announcement-date-col {
+                justify-content: flex-start;
+            }
+
+            .modal-content {
+                padding: 24px;
+                width: 95%;
+            }
+
+            .modal-title {
+                font-size: 22px;
+            }
+
+            .modal-message {
+                font-size: 15px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">📢 All Announcements</h1>
+        <a href="#" class="back-btn" onclick="window.history.back(); return false;">
+            <span>←</span>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
+    <!-- Check if announcements exist -->
+    <div th:if="${announcementsOfStudents != null and !announcementsOfStudents.isEmpty()}">
+        <div class="announcements-grid">
+            <!-- Loop through announcements -->
+            <div class="announcement-item" th:each="announcement, iterStat : ${announcementsOfStudents}">
+                <div class="announcement-content">
+                    <!-- Column 1: Title and Message -->
+                    <div class="announcement-main">
+                        <div class="announcement-title"
+                             th:title="${announcement[0]}"
+                             th:text="${#strings.length(announcement[0]) > 25 ? #strings.substring(announcement[0], 0, 25) + '...' : announcement[0]}">
+                            Announcement Title
+                        </div>
+                        <div class="announcement-message"
+                             th:title="${announcement[1]}"
+                             th:text="${#strings.length(announcement[1]) > 50 ? #strings.substring(announcement[1], 0, 50) + '...' : announcement[1]}">
+                            This is the announcement message that will be truncated...
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Teacher Name -->
+                    <div class="announcement-teacher-col">
+                        <div class="announcement-teacher" th:text="${announcement[3]}">
+                            Teacher Name
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Date -->
+                    <div class="announcement-date-col">
+                        <div class="announcement-date" th:text="${announcement[2]}">
+                            2025-12-13
+                        </div>
+                    </div>
+                </div>
+
+                <div class="announcement-footer">
+                    <button class="view-full-btn"
+                            th:attr="data-title=${announcement[0]}, data-message=${announcement[1]}, data-teacher=${announcement[3]}, data-date=${announcement[2]}"
+                            onclick="openModal(this)">
+                        <span>View Details</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No announcements message -->
+    <div th:if="${announcementsOfStudents == null or announcementsOfStudents.isEmpty()}" class="no-announcements">
+        <div class="no-announcements-icon">📭</div>
+        <div class="no-announcements-text">No announcements available</div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="announcementModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-meta">
+            <div class="modal-teacher" id="modalTeacher"></div>
+            <div class="modal-date" id="modalDate"></div>
+        </div>
+        <div class="modal-message" id="modalMessage"></div>
+    </div>
+</div>
+
+<script>
+    // Open modal
+    function openModal(button) {
+        const modal = document.getElementById('announcementModal');
+
+        document.getElementById('modalTitle').textContent = button.getAttribute('data-title');
+        document.getElementById('modalTeacher').textContent = button.getAttribute('data-teacher');
+        document.getElementById('modalDate').textContent = button.getAttribute('data-date');
+        document.getElementById('modalMessage').textContent = button.getAttribute('data-message');
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    function closeModal() {
+        const modal = document.getElementById('announcementModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+        const modal = document.getElementById('announcementModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    console.log('Announcements page loaded successfully');
+</script>
+</body>
+</html>
