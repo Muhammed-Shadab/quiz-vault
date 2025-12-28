@@ -22,6 +22,7 @@ public class AIService {
     @Value("${gemini.api.url}")
     private String apiUrl;
 
+
     private final WebClient webClient;
 
     public AIService(WebClient.Builder builder) {
@@ -43,7 +44,8 @@ public class AIService {
                  {
                    "question": "...",
                    "options": ["A","B","C","D"],
-                   "answer": "text of correct answer"
+                   "answer": "text of correct answer(do not add the options name like A),B) ... etc. 
+                   only the text of the correct option)"
                  }
               ]
             }

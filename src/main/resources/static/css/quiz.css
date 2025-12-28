@@ -6,6 +6,46 @@ body {
     margin: 0;
 }
 
+/* Timer styling */
+#timer-container {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+}
+
+#timer-label {
+    font-size: 1em;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #fecaca;
+}
+
+#timer {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: white;
+    font-variant-numeric: tabular-nums;
+}
+
+#timer.warning {
+    color: #fbbf24;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+#timer.critical {
+    color: #fca5a5;
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 h1 {
     color: white;
     text-align: center;
@@ -145,6 +185,10 @@ button[type="submit"]:active {
     }
 
     h1 {
+        font-size: 2em;
+    }
+
+    #timer {
         font-size: 2em;
     }
 

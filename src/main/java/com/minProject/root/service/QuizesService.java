@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -141,6 +142,7 @@ public class QuizesService {
             model.addAttribute("questions",questions);
             model.addAttribute("title",q.getTitle());
             model.addAttribute("id",q.getQuizId());
+            model.addAttribute("expireAt",q.getDuration());
             session.setAttribute("quizId",q.getQuizId());
 
             Teacher t = q.getTeacherId();
@@ -182,29 +184,33 @@ public class QuizesService {
         if(QuizId == null || studentEmail == null) return "welcomePage";
         Student s = stnRepo.findByEmail(studentEmail);
 
-        QuizAttempt attempt = QARepo.isQuizAttemptedByStudent(QuizId,s.getStudentId());
-        if(attempt.getEnd_time() == null) {
-            Optional<Quizes> optionalQuiz = quizRepo.findById(QuizId);
-            Quizes q = optionalQuiz.get();
+        QuizAttempt qa = QARepo.isQuizAttemptedByStudent(QuizId,s.getStudentId());
 
-            List<Question> questions = q.getQuestions();
+        if(qa.getEnd_time() == null) {
+            Quizes q = qa.getQuizId();
+            LocalDateTime expectedTime = qa.getStart_time().plusMinutes(q.getDuration());
+            expectedTime = expectedTime.plusSeconds(15);
 
-            int score = 0;
-            for (String key : selectedOptions.keySet()) {
-                int idx = Integer.parseInt(key) - 1;
-                Question temp = questions.get(idx);
-                if (selectedOptions.get(key).equals(temp.getAnswer())) score++;
+            if (qa.getTabSwitchingCount() <= q.getMaxTabSwitches() && q.getExpireAt().isAfter(LocalDateTime.now())
+                && LocalDateTime.now().isBefore(expectedTime)) {
+
+                List<Question> questions = q.getQuestions();
+
+                int score = 0;
+                for (String key : selectedOptions.keySet()) {
+                    int idx = Integer.parseInt(key) - 1;
+                    Question temp = questions.get(idx);
+                    System.out.println(selectedOptions.get(key) + " " + temp.getAnswer());
+                    if (selectedOptions.get(key).equals(temp.getAnswer())) score++;
+                }
+
+                qa.setCorrectQuestionsCount(score);
+                qa.setScore(score * q.getMarksOfEachQuestion());
             }
-            Long QAId = (Long) session.getAttribute("QuizAttemptId");
-            QuizAttempt qa = QARepo.FindById(QAId);
-            if (qa.getTabSwitchingCount() < q.getMaxTabSwitches()) {
-                attempt.setCorrectQuestionsCount(score);
-                attempt.setScore(score * q.getMarksOfEachQuestion());
-            }
-            attempt.setEnd_time(LocalDateTime.now());
-            QARepo.save(attempt);
+            qa.setEnd_time(LocalDateTime.now());
+            QARepo.save(qa);
         }
-        addAttemptedQuizData(attempt, model);
+        addAttemptedQuizData(qa, model);
         return "quizAlreadyAttempted";
 
     }
